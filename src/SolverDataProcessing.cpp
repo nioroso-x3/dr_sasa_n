@@ -647,7 +647,7 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       cout << "Object " << objA << " uncomplexed surface:\t" << objA_sasa << " A^2" << std::endl;
       cout << "Object " << objB << " uncomplexed surface:\t" << objB_sasa << " A^2" << std::endl; 
       cout << objA << "<-" << objB << " buried surface:\t" << objA_bsa << " A^2" << std::endl;
-      cout << objB << "<-" << objA << " buried surface:\t" << objB_bsa << " A^2" << std::endl;
+      cout << objA << "->" << objB << " buried surface:\t" << objB_bsa << " A^2" << std::endl;
       cout << "Interface "<< objA << "/" << objB << ":\t" << ((objA_bsa+objB_bsa) / 2.0) << " A^2" << std::endl;
     }
   }
