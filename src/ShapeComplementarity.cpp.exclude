@@ -1,0 +1,237 @@
+#include "stdafx.h"
+#include <pcl/point_cloud.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include "pcl/kdtree/impl/kdtree_flann.hpp" 
+#include "atom_struct.h"
+#include "SurfaceSolverOnTheFly.h"
+#include "SurfaceSolverCL.h"
+#include "ShapeComplementarity.h"
+
+float
+GetS(vector<atom_struct>&       pdb,
+     vector<float>&            points,
+     vector<vector<string>>     obj1,
+     int                        cl_mode){
+  if (obj1.size() != 2) return -1;
+  
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud0(new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1(new pcl::PointCloud<pcl::PointXYZ>);
+  
+  vector<int> P_atompos;
+  vector<int> P_atomposB;
+  vector<char> P_status;
+  //assuming pdb was divided in two objects, so any type different from this should be the second type
+
+  vector<atom_struct> pdb_n = pdb;
+  uint32 shell_s3 = points.size();
+  uint32 shell_s = shell_s3 / 3;
+  auto* p = points.data();
+  SolveInteractionsALL(pdb,0,obj1);
+  SolveInteractionsALL(pdb_n,1,obj1);
+//   SimpleSolverCL(pdb,points,cl_mode);
+//   SimpleSolverCL(pdb_n,points,cl_mode);
+  SimpleSolver_2(pdb,points);
+  SimpleSolver_2(pdb_n,points);
+  vector<uint32> dsasa_pos;
+  for (uint32 i = 0; i < pdb.size();++i){
+    pdb[i].EXT1 = pdb_n[i].SASA - pdb[i].SASA;
+    
+    pdb[i].STRUCT_TYPE = pdb_n[i].STRUCT_TYPE;
+    if(pdb[i].EXT1 > 0){
+      //cout << pdb[i].NAME << " " << pdb[i].RESI << " " << pdb_n[i].SASA << " " << pdb[i].SASA << "\n";
+      dsasa_pos.push_back(i);
+    }
+  }
+  
+  string type0 = pdb[0].STRUCT_TYPE; 
+  string type1 = "";
+  for (auto& atom : pdb){
+    if (atom.STRUCT_TYPE != type0){
+      type1 = atom.STRUCT_TYPE;
+      break;
+    }
+  }
+  cout << type0 << " " << type1 << "\n";
+  cout << dsasa_pos.size() <<  "\n";
+  cout << "Storing points...\n";
+  uint32 buried = 0;
+  ofstream asdf("test.txt");
+  for (auto& atom : pdb){
+    auto* C_I = atom.COORDS.data();
+    asdf << C_I[0] << "\t" << C_I[1] << "\t" << C_I[2] << "\t" << (atom.STRUCT_TYPE == type0 ? "C0" : "C1") << "\n"; 
+  }
+  
+  for (uint32 idx = 0; idx < dsasa_pos.size();++idx){
+    uint32 i = dsasa_pos[idx];
+
+    auto& atom_i = pdb[i];
+    auto* C_I = atom_i.COORDS.data();
+    auto R_I = atom_i.RADIUS;
+    if(!atom_i.ACTIVE) continue;
+    
+    for (uint32 k = 0; k < shell_s; ++k){
+      auto k3 = k*3;
+      auto Xj = p[k3]     * R_I + C_I[0];
+      auto Yj = p[k3 + 1] * R_I + C_I[1];
+      auto Zj = p[k3 + 2] * R_I + C_I[2];
+      char valid = true;
+      char b = false;
+      for (uint32 j = 0; j < atom_i.INTERACTION_P.size(); ++j){
+        auto& atom_j = pdb[atom_i.INTERACTION_P[j]];
+        if(!atom_j.ACTIVE) continue;
+        auto* C_J = atom_j.COORDS.data();
+        auto R_J2 = atom_j.RADIUS2;
+        float x = Xj - C_J[0];
+        float y = Yj - C_J[1];
+        float z = Zj - C_J[2];
+        float dist_j = x*x + y*y + z*z;
+
+        if (dist_j <= R_J2){
+          if(atom_i.STRUCT_TYPE == atom_j.STRUCT_TYPE){ 
+            valid = false;
+            break;
+          }
+          else{
+            b = true;
+          }
+        }
+      }
+      if(b)buried++;
+      if(valid){
+        pcl::PointXYZ P(p[k*3]     * R_I + C_I[0],
+                        p[k*3 + 1] * R_I + C_I[1],
+                        p[k*3 + 2] * R_I + C_I[2]);
+        cloud0->points.push_back(P);
+        P_status.push_back(b);
+        P_atompos.push_back(i);
+//         cout << idx <<"\t"<< t  << " " << P_status.size()<<"\n";
+      }
+    }
+  }
+  cloud0->width = cloud0->points.size();
+  for (uint32 i= 0; i< cloud0->points.size(); ++i){
+    auto& p = cloud0->points[i];
+    auto& atom = pdb[P_atompos[i]];
+    if (P_status[i]){
+      asdf << p.x << "\t" << p.y << "\t" << p.z << "\t";
+      if(atom.STRUCT_TYPE == type0) asdf << "B0\n";
+      else asdf << "B1\n";
+    }
+//     else{
+//       if(atom.STRUCT_TYPE == type0) asdf << "NB0\n";
+//       else asdf << "NB1\n";
+//     }
+  }
+  asdf.close();
+  cloud0->height=1;
+  cout << "Building kdtree with " << cloud0->width <<" points with " << buried <<" buried...\n";
+  pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
+  kdtree.setInputCloud(cloud0);
+  
+  vector<float> Sp1; //A to B
+  vector<float> Sp2; //B to A
+  cout << "Starting kdtree exclusion search...\n";
+  //#pragma omp parallel for schedule(dynamic)
+  for (uint32 i = 0; i < cloud0->points.size(); ++i){
+    int pos_i = P_atompos[i];
+    bool buried = P_status[i];
+    if(!buried) continue;
+    vector<int> FoundIDX;
+    vector<float> SqDists;
+    bool valid = true;
+    auto& xA = cloud0->points[i];
+    auto& atom_i = pdb[pos_i];
+
+    kdtree.radiusSearch(xA,0.1,FoundIDX,SqDists);
+
+    for (uint32 j = 0; j < FoundIDX.size(); ++j){
+      int pos_j = P_atompos[FoundIDX[j]];
+      auto& atom_j = pdb[pos_j];
+      if ((atom_i.STRUCT_TYPE == atom_j.STRUCT_TYPE) && 
+          !P_status[FoundIDX[j]] && SqDists[j] < 2.25){
+        valid = false;
+        break;
+      }
+    }
+    if (!valid) continue;
+    #pragma omp critical(push_buried)
+    {
+    cloud1->points.push_back(xA);
+    P_atomposB.push_back(pos_i);
+    }
+  }
+  P_atompos.clear();
+  P_status.clear();
+  cloud0->points.clear();
+  cloud0->width  = 0;
+  cloud0->height = 0;
+  
+  cloud1->width = cloud1->points.size();
+  cloud1->height = 1;
+  cout << "Building kdtree with " << cloud1->width <<" points...\n";
+  kdtree.setInputCloud(cloud1);
+  cout << "Starting kdtree S search...\n";
+  #pragma omp parallel for schedule(dynamic)
+  for (uint32 i = 0; i < cloud1->points.size(); ++i){
+    int pos_i = P_atomposB[i];
+    vector<int> FoundIDX(100);
+    vector<float> SqDists(100);
+    auto& xA = cloud1->points[i];
+    auto& atom_i = pdb[pos_i];
+    kdtree.nearestKSearch(xA,100,FoundIDX,SqDists);
+    int nearpos = FoundIDX[0];
+    float dist2 = SqDists[0];
+    for (uint32 j = 0; j < FoundIDX.size(); ++j){
+      int idx = FoundIDX[j];
+      auto& atom_j = pdb[P_atomposB[idx]];
+      float d2 = SqDists[j];
+      if (atom_i.STRUCT_TYPE != atom_j.STRUCT_TYPE && d2 < dist2){
+        nearpos = FoundIDX[j];
+        dist2 = d2;
+      }
+    }
+    
+    auto& atom_j = pdb[P_atomposB[nearpos]];
+    auto& xB = cloud1->points[nearpos];
+    pcl::PointXYZ c1(atom_i.COORDS[0],atom_i.COORDS[1],atom_i.COORDS[2]);
+    pcl::PointXYZ c2(atom_j.COORDS[0],atom_j.COORDS[1],atom_j.COORDS[2]);
+    pcl::PointXYZ uA(0,0,0);
+    float vxA = xA.x - c1.x;
+    float vyA = xA.y - c1.y;
+    float vzA = xA.z - c1.z;
+    float MA = sqrt(pow(vxA,2) + pow(vyA,2) + pow(vzA,2));
+    uA.x = vxA/MA; 
+    uA.y = vyA/MA;
+    uA.z = vzA/MA;
+    
+    pcl::PointXYZ uB(0,0,0);
+    float vxB = c2.x - xB.x;
+    float vyB = c2.y - xB.y;
+    float vzB = c2.z - xB.z;
+    float MB = sqrt(pow(vxB,2) + pow(vyB,2) + pow(vzB,2));
+    uB.x = vxB/MB; 
+    uB.y = vyB/MB;
+    uB.z = vzB/MB;
+    
+    float S = (uA.x*uB.x+uA.y*uB.y+uA.z*uB.z) * exp(-0.5*dist2);
+    #pragma omp critical(s_push)
+    {
+    if (atom_i.STRUCT_TYPE == type0) Sp1.push_back(S);
+    else Sp2.push_back(S);
+    }
+  }
+  cout << "Almost done...\n";
+  cout << Sp1.size() << " " << Sp2.size() << "\n";
+  sort(Sp1.begin(),Sp1.end());
+  sort(Sp2.begin(),Sp2.end());
+  float Sab = 0;
+  float Sba = 0;
+  if (Sp1.size() > 3 && Sp2.size() > 3){
+    if(Sp1.size() % 2) Sab = (Sp1[uint(Sp1.size()/2)-1] + Sp1[uint(Sp1.size()/2)])/2.0;
+    else Sab = Sp1[int(Sp1.size()/2)];
+    if(Sp2.size() % 2) Sba = (Sp2[uint(Sp2.size()/2)-1] + Sp2[uint(Sp2.size()/2)])/2.0;
+    else Sba = Sp2[uint(Sp2.size()/2)];
+  }
+  else return -80085;
+  return (Sab + Sba)/2.0;
+}
