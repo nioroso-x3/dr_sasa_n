@@ -363,6 +363,18 @@ int main(int argc, char* argv[])
     if(mode == 0){
       if(chain_sep.size() == 1) ChainSelector(chain_sep,pdb);
     }
+    else{
+      if(chain_sep.size() == 1) ChainSelector(chain_sep,pdb);
+      else if(chain_sep.size() > 1){
+        vector<vector<string>> sele;
+        vector<string> tmp;
+        for(auto& item : chain_sep){
+          for (auto& c : item) tmp.push_back(c);
+        } 
+        sele.push_back(tmp);
+        ChainSelector(sele,pdb);
+      }
+    }
     rad.SetRadius(pdb, probe);
     SolveInteractions(pdb,0);
     SimpleSolverCL(pdb,rad.Points,cl_mode);
@@ -424,11 +436,11 @@ int main(int argc, char* argv[])
     int Imode = 0;
     if (chain_sep.size() <= 1){
       Imode = 4;
-      cout << "Automatic interaction solver selected.\n";
+      cout << "#Automatic interaction solver selected.\n";
     }
     else{
       Imode = 1;
-      cout << "Manual chain interaction solver selected.\n";
+      cout << "#Manual chain interaction solver selected.\n";
     } 
     stringstream stdinput;
     stdinput << inputs[0];

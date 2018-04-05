@@ -646,8 +646,8 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       //log to stdout
       cout << "Object " << objA << " uncomplexed surface:\t" << objA_sasa << " A^2" << std::endl;
       cout << "Object " << objB << " uncomplexed surface:\t" << objB_sasa << " A^2" << std::endl; 
-      cout << objA << "<-" << objB << " buried surface:\t" << objA_bsa << " A^2" << std::endl;
-      cout << objA << "->" << objB << " buried surface:\t" << objB_bsa << " A^2" << std::endl;
+      cout << objA << " <--- " << objB << " buried surface:\t" << objA_bsa << " A^2" << std::endl;
+      cout << objA << " ---> " << objB << " buried surface:\t" << objB_bsa << " A^2" << std::endl;
       cout << "Interface "<< objA << "/" << objB << ":\t" << ((objA_bsa+objB_bsa) / 2.0) << " A^2" << std::endl;
     }
   }
@@ -875,7 +875,7 @@ PrintSASAResults(vector<atom_struct>& pdb,
   float Arel = total / (4.44*pow(mw,0.77));
 
   outf << "REMARK 001 TOTAL SURFACE AREA " << total << std::endl;
-  cout << "Complex area\t: " << total << " A^2" << std::endl;
+  cout << "Selected complex surface:\t" << total << " A^2" << std::endl;
   outf << "REMARK 002 MOLECULAR WEIGHT " << mw << std::endl;
   //cout << "MW: " << mw << "\n";
 //  outf << "REMARK 002  " << Arel << std::endl;
