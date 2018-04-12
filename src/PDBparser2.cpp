@@ -911,7 +911,7 @@ MOL2parser(string fname,
   MOL2_parse_map(sections,
                  temp,
                  CHAINn);
-cout << temp.size();
+  
   result.insert(result.end(),temp.begin(),temp.end());
   GetMolType(result);
   GetAtomType(typefname,result,KeepUnknown);
@@ -971,10 +971,13 @@ MOL2_parse_map(map<string,vector<string>>& sections,
     int resi = 0;
     string icode = "";
     if(tokens.size() > 6 || line.size() >= 56){ 
-      resi = stoi(line.substr(52,4));
+      if(line.size() >= 56) resi = stoi(line.substr(52,4));
+      else resi = stoi(tokens[6]);
       
-      if(line.size() >= 69){
-        string resn_ = line.substr(58,9);
+      if(tokens.size() > 7 || line.size() >= 69){
+        string resn_;
+        if(line.size() >= 69) resn_= line.substr(58,9);
+        else resn_ = tokens[7];
         resn_.erase(resn_.find_last_not_of(" \n\r\t")+1);
         for(char& c : resn_){
           if (!isdigit(c)){

@@ -19,21 +19,24 @@ string help = "Usage:\n"
 "The .asa file has the SASA values in the B-factor column, and a internal atom typing in the charge column reserved for future use.\n"
 "EXAMPLE:\n"
 "  ./dr_sasa -m 0 -i 4ins.pdb -o 4ins.asa\n\n "
-" *Delta SASA by chain ID or automatic: (mode 8)\n"
+" *Delta SASA by chain ID or automatic: (mode 1)\n"
 "Calculates the delta SASA in various objects contained in a single pdb or mol2 file.\n"
 "Objects are currently defined only by their chains.\n"
 "Outputs an interaction table, all surface overlaps, and a dSASA matrix for each\n"
 "permutation of defined objects.\n"
 "If no chains are selected the interactions will be defined by molecular type\n"
 "EXAMPLE:\n"
-"  ./dr_sasa -m 8 -i 4ins.pdb -chain AB -chain CD\n\n"
-"  ./dr_sasa -m 8 -i 1bl0.pdb\n\n"
-" *Aminoacid dSASA mode: (mode 9)\n"
+"  ./dr_sasa -m 1 -i 4ins.pdb -chain AB -chain CD\n\n"
+"  ./dr_sasa -m 1 -i 1bl0.pdb\n\n"
+" *Aminoacid dSASA mode: (mode 2)\n"
 "Calculates the delta SASA of all aminoacids inside a single object.\n"
 "Outpus an interaction table and overlap table.\n"
 "EXAMPLE:\n"
-"  ./dr_sasa -m 9 -i 4ins.pdb -chain ABCD\n\n"
-"The -nomatrix switch will disable matrix output.\n\n";
+"  ./dr_sasa -m 2 -i 4ins.pdb -chain ABCD\n\n"
+" *Switches\n\n"
+"-nomatrix\tswitch will disable matrix output.\n\n"
+"-r float\tswitch will set the water probe radius in Angstroms. Default value is 1.4. Setting to 0 is equal to using the molecular surface.\n\n"
+;
 
 vector<char>
 float2bool(vector<float> mtrx){
@@ -324,8 +327,8 @@ int main(int argc, char* argv[])
       if (c == "-usegpu"){
         if (i + 1 < argc) cl_mode = stoi(string(argv[i + 1])) + 1;
       }
-      if (c == "-hetatm"){
-        keepunknown = true;
+      if (c == "-nohetatm"){
+        keepunknown = false;
       }
       if (c == "-outtype"){
         mtrxtype = 1;
@@ -341,9 +344,9 @@ int main(int argc, char* argv[])
     return -1;
   }
 
-       //basic sasa solver
+  //basic sasa solver
 
-  if (mode != 1){
+  if (mode != 100){
     if(mode == 0){
       if (chain_sep.size()>1){
         cerr << "Please define a single object.\n";
@@ -384,7 +387,7 @@ int main(int argc, char* argv[])
     if (mode == 0) return 0;
   }
   //relative ASA
-  if(mode==1){
+  if(mode==100){
     if (chain_sep.size()>1){
       cerr << "Please define a single object.\n";
       return 0;
@@ -408,7 +411,7 @@ int main(int argc, char* argv[])
   }
 
   //Simple ASA solver, output is by atom type definition
-  if(mode==6){
+  if(mode==106){
     if (chain_sep.size()!=1){
       cerr << "Please define a single object.\n";
       return 0;
@@ -432,7 +435,7 @@ int main(int argc, char* argv[])
 
  
   //Generic structure dSASA
-  if(mode==8){
+  if(mode==1){
     int Imode = 0;
     if (chain_sep.size() <= 1){
       Imode = 4;
@@ -492,57 +495,10 @@ int main(int argc, char* argv[])
 
     return 0;
   }
-   //Protein/DNA/RNA/ligand interfaces automatic selection
-/*  if(mode==81){
-    stringstream stdinput;
-    if (chain_sep.size() > 1){
-      cerr << "Please select a single set of chains.\n";
-      return 0;
-    }
-   
-    stdinput << inputs[0]; 
-    if(chain_sep.size() == 1){
-      stdinput << ".";
-      for (uint32 i = 0; i < chain_sep.size(); ++i){
-        for (auto c : chain_sep[i]){
-          stdinput << c;
-        }
-        if (i < chain_sep.size() - 1) stdinput << "_vs_";
-      }
-    }
-    string vsinput = stdinput.str();
-    string input = inputs[0];
-    string output1 = vsinput+".int_table";
-    string output2 = vsinput+".overlaps";
-    string output3 = input;
-
-    VDWcontainer rad(vdwfile);
-    rad.GenPoints();
-    auto pdb = PDBparser(input,types,keepunknown);
-    //
-    //for(auto item : pdb) cout << item.print() << "\n";
-    //
-    if(chain_sep.size() == 1) ChainSelector(chain_sep,pdb);
-
-    rad.SetRadius(pdb, probe);
-
-    Generic_Solver(pdb,rad.Points,chain_sep,4,cl_mode);
-
-    GeneratePairInteractionData(pdb);
-
-    //PrintDNA_ProtResultsTable(pdb, output1);
-    PrintDNA_ProtResults(pdb, output2);
-
-    if(mtrx){ 
-      PrintDNA_ProtResultsByAtomMatrix(pdb, output3,mtrxtype);
-      Print_MatrixInsideAtom(pdb,vsinput);
-    }
-    return 0;
-  }*/
-  
+ 
 
 //dSASA inside aminoacids mode
-  if(mode == 9){
+  if(mode == 2){
     if (chain_sep.size() > 1){
       cerr << "Please define a single object.\n";
       return 0;
