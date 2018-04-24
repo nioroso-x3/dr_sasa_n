@@ -118,23 +118,6 @@ int main(int argc, char* argv[])
   string types;
   vector<vector<string>> chain_sep;
   bool mtrx = true;
-  vector<float> xmax = {50.0,50.0,50.0};
-  vector<float> int_xmax = {100,100,100};
-  vector<int>    bins = {20,20,20};
-  vector<float> srads = {7.0,7.0,7.0};
-  vector<float> srads_min = {0.0f,0.0f,0.0f};
-  vector<int>    tpfs =  {0,0,0};
-  vector<int>    tpfsM =  {-1,-1,-1};
-  bool dumpdd = false;
-  bool dumprasp = false;
-  bool dumpsasa = false;
-  bool dumpint = false;
-  int b = -1;
-  float omega = 180.0;
-  float S = 0.02;
-  string I_TYPE;
-  string J_TYPE;
-  bool rna2dna = false;
   int cl_mode = 0;
   bool keepunknown = true;
   int mtrxtype = 0;
@@ -208,122 +191,12 @@ int main(int argc, char* argv[])
           chain_sep.push_back(result);
         }
       }
-      if(c == "-Dxmax"){ // ":" separated values, maximum X value
-        if(i+1 < argc){
-          stringstream str_val(argv[i+1]);
-          uint32 i = 0;
-          while(str_val.good() && i < xmax.size()){
-            string str;
-            getline(str_val,str,':');
-            xmax[i++] = stod(str);
-          }
-        }
-      }
-      if(c == "-Dint"){ // ":" separated values, maximum X value
-        if(i+1 < argc){
-          stringstream str_val(argv[i+1]);
-          uint32 i = 0;
-          while(str_val.good() && i < int_xmax.size()){
-            string str;
-            getline(str_val,str,':');
-            int_xmax[i++] = stod(str);
-          }
-        }
-      }
-      if(c == "-Dbins"){  //":" separated values, histogram bin count
-        if(i+1 < argc){
-          stringstream str_val(argv[i+1]);
-          uint32 i = 0;
-          while(str_val.good() && i < bins.size()){
-            string str;
-            getline(str_val,str,':');
-            bins[i++] = stoi(str);
-          }
-        }
-      }
-      if(c == "-Dsrads"){  //":" separated values, interaction ranges
-        if(i+1 < argc){
-          stringstream str_val(argv[i+1]);
-          uint32 i = 0;
-          while(str_val.good() && i < srads.size()){
-            string str;
-            getline(str_val,str,':');
-            srads[i++] = stod(str);
-          }
-        }
-      }
-  
-      if(c == "-Dsrads_min"){  //":" separated values, min interaction ranges
-        if(i+1 < argc){
-          stringstream str_val(argv[i+1]);
-          uint32 i = 0;
-          while(str_val.good() && i < srads_min.size()){
-            string str;
-            getline(str_val,str,':');
-            srads_min[i++] = stod(str);
-          }
-        }
-      }
-  
-      if(c == "-Dtpfs"){  //":" separated values, tpfactor
-        if(i+1 < argc){
-          stringstream str_val(argv[i+1]);
-          uint32 i = 0;
-          while(str_val.good() && i < tpfs.size()){
-            string str;
-            getline(str_val,str,':');
-            tpfs[i++] = stoi(str);
-          }
-        }
-      }
-      if(c == "-DtpfsM"){  //":" separated values, tpfactor max limit
-        if(i+1 < argc){
-          stringstream str_val(argv[i+1]);
-          uint32 i = 0;
-          while(str_val.good() && i < tpfsM.size()){
-            string str;
-            getline(str_val,str,':');
-            tpfsM[i++] = stoi(str);
-          }
-        }
-      }
-      if(c == "-dump-dd"){
-        dumpdd = true;
-      }
-      if(c == "-dump-rasp"){
-        dumprasp = true;
-      } 
-      if(c == "-dump-sasa"){
-        dumpsasa = true;
-      }
-      if(c   == "-dump-coarse"){
-        dumpint = true;
-      }
       if(c == "-h" || c == "--help" || argc == 1){
         cout << help;
         return 0;
       }
       //disable matrix output
       if (c == "-nomatrix") mtrx = false;
-      //non bonded removal depth
-      if (c == "-Dnb"){
-        if (i + 1 < argc) b = stoi(string(argv[i + 1]));
-      }
-      //Non Effective angle in degrees
-      if (c == "-Domega"){
-        if (i + 1 < argc) omega = stod(string(argv[i+1]));
-      }
-      //I types
-      if (c == "-Ditype"){
-        if (i + 1 < argc) I_TYPE = string(argv[i+1]);
-      }
-      //J types
-      if (c == "-Djtype"){
-        if (i + 1 < argc) J_TYPE = string(argv[i+1]);
-      }
-      if (c == "-rna2dna"){
-        rna2dna = true;
-      }
       if (c == "-usegpu"){
         if (i + 1 < argc) cl_mode = stoi(string(argv[i + 1])) + 1;
       }
@@ -347,6 +220,7 @@ int main(int argc, char* argv[])
   //basic sasa solver
 
   if (mode != 100){
+    cout << inputs[0] << "\n";
     if(mode == 0){
       if (chain_sep.size()>1){
         cerr << "Please define a single object.\n";
@@ -357,8 +231,8 @@ int main(int argc, char* argv[])
     string output = inputs[0]+".asa";
     string splitasa = inputs[0]+".atmasa";
     if (mode == 0){
-      output = outputs[0];
-      splitasa = outputs[1];
+      if(outs >= 1) output = outputs[0];
+      if(outs >= 2) splitasa = outputs[1];
     }
     VDWcontainer rad(vdwfile);
     rad.GenPoints();
@@ -381,7 +255,6 @@ int main(int argc, char* argv[])
     rad.SetRadius(pdb, probe);
     SolveInteractions(pdb,0);
     SimpleSolverCL(pdb,rad.Points,cl_mode);
-    cout << input << " done:\n";
     PrintSASAResults(pdb,output);
     PrintSplitAsaAtom(pdb,splitasa);
     if (mode == 0) return 0;

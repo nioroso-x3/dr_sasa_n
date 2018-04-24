@@ -84,19 +84,19 @@ void VDWcontainer::SetRadius(vector<atom_struct>& atoms,float probe){
     }
     if (a.ELEMENT == "I"){
       a.VDW = 2.094;
-      set_to = "SE";
+      set_to = "I";
     }
     if (a.ELEMENT == "F"){
       a.VDW = 1.560;
-      set_to = "SE";
+      set_to = "F";
     }
-    if (a.ELEMENT == "Br"){
+    if (a.ELEMENT == "Br" || a.ELEMENT == "BR"){
       a.VDW = 1.978;
-      set_to = "SE";
+      set_to = "Br";
     }
-    if (a.ELEMENT == "Cl"){
+    if (a.ELEMENT == "Cl" || a.ELEMENT == "CL"){
       a.VDW = 1.735;
-      set_to = "SE";
+      set_to = "Cl";
     }
     if (set_to == "NONE"){
       a.VDW = 0;
@@ -110,7 +110,8 @@ void VDWcontainer::SetRadius(vector<atom_struct>& atoms,float probe){
       if(sybyl2chimera.find(atom.CHARGE) != sybyl2chimera.end()) ch_name = sybyl2chimera[atom.CHARGE];
       else{
          
-        cerr << "MOL2_UNKNOWN_NAME "  <<atom.NAME <<"|" <<atom.RESN << "|" <<atom.RESI<< "|" << atom.CHAIN << "|" << atom.CHARGE<< "\n";
+      cerr << "MOL2_UNKNOWN_NAME "  <<atom.NAME <<"|" <<atom.RESN << "|" <<atom.RESI<< "|" << atom.CHAIN << "|" << atom.CHARGE << "|" << atom.ELEMENT << "\n";
+        set_unknown(atom);
         continue;
       }
       float vdw = u_vdw_radii[ch_name];

@@ -50,7 +50,7 @@ GetAtoms(string               resn,
        searcher(p->CHAIN,chain) &&
        ((resi == MAX_INT) ? true : (p->RESI == resi)) && 
        searcher(p->iCODE,icode)){
-      //cout << chain << " " << resi << " | " << p->RESN << " " << int(p->CHAIN == chain) << " " << p->RESI << "\n";
+//      cout << chain << " " << resi << " | " << p->RESN << " " << int(p->CHAIN == chain) << " " << p->RESI << "\n";
       result.push_back(p);
       }
     }
@@ -72,8 +72,13 @@ OrganizePDB(vector<atom_struct>& pdb){
     vector<vector<atom_struct*>> cur_chain;
     vector<int> RESI(RESIs[chain].begin(),RESIs[chain].end());
     sort(RESI.begin(),RESI.end());
+//    cout <<"___\n";
     for (auto& resi : RESI){
-      cur_chain.push_back(GetAtoms("",chain,resi,"",pdb));
+       auto atoms = GetAtoms("",chain,resi,"",pdb);
+//       for(auto& atom : atoms){
+//         cout << atom->print() << "\n";
+//       }
+       cur_chain.push_back(atoms);
     }
     result.push_back(cur_chain);
   }

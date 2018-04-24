@@ -504,7 +504,8 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
           ColL_type.push_back(atom.ATOM_TYPE);
           ColM[aID] = ColL.size()-1;
           ColLres.push_back(rID);
-          objA_sasa += atom.SASA + atom.EXT1;
+          //cout << atom.print() << std::endl;
+          objA_sasa += atom.SASA;
           //cout << " COL " << aID << " " << ColL.size()-1 << std::endl;
         }
         if(atom.STRUCT_TYPE == objB){
@@ -512,7 +513,7 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
           LineL_type.push_back(atom.ATOM_TYPE);
           LineM[aID] = LineL.size()-1;
           LineLres.push_back(rID);
-          objB_sasa += atom.SASA + atom.EXT1;
+          objB_sasa += atom.SASA ;
           //cout << " LIN " << aID << " " << LineL.size()-1 << std::endl;
         }
       }
@@ -644,10 +645,12 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       AcBfileres.close();
       BcAfileres.close();
       //log to stdout
-      cout << "Object " << objA << " uncomplexed surface (A^2):\t" << objA_sasa << std::endl;
-      cout << "Object " << objB << " uncomplexed surface: (A^2)\t" << objB_sasa << std::endl; 
-      cout << objA << " <--- " << objB << " buried surface: (A^2)\t" << objA_bsa  << std::endl;
-      cout << objA << " ---> " << objB << " buried surface: (A^2)\t" << objB_bsa  << std::endl;
+      cout << "Object " << objA << " complexed surface (A^2):\t" << objA_sasa << std::endl;
+      cout << "Object " << objB << " complexed surface (A^2):\t" << objB_sasa << std::endl; 
+      cout << "Object " << objA << " uncomplexed surface (A^2):\t" << (objA_sasa+objA_bsa) << std::endl;
+      cout << "Object " << objB << " uncomplexed surface (A^2):\t" << (objB_sasa+objB_bsa) << std::endl; 
+      cout << objA << " <--- " << objB << " buried surface (A^2):\t" << objA_bsa  << std::endl;
+      cout << objA << " ---> " << objB << " buried surface (A^2):\t" << objB_bsa  << std::endl;
       cout << "Interface "<< objA << "/" << objB << " (A^2):\t" << ((objA_bsa+objB_bsa) / 2.0)  << std::endl;
     }
   }
@@ -832,7 +835,8 @@ PrintSASAResults(vector<atom_struct>& pdb,
   float mw = 0;
   ofstream outf(output, ofstream::out);
     outf << "REMARK 000 SASA SOLVER" << std::endl;
-  map<char,float> aw = {{'C',12.0},{'H',1.0},{'O',16.0},{'N',14.0},{'P',31.0},{'S',32.0}};
+  map<string,float> aw = {{"C",12.011},{"H",1.0},{"O",15.999},{"N",14.007},{"P",30.973},
+                          {"S",32.06},{"F",19.0},{"Br",80.0 },{"BR",80.0 },{"Cl",35.45},{"CL",35.45}};
 
   for (uint32 i = 0; i<pdb.size(); ++i){
     auto& atom_i = pdb[i];
@@ -847,8 +851,8 @@ PrintSASAResults(vector<atom_struct>& pdb,
       outf << "  ";
       outf << std::left << std::setw(3) << atom_i.NAME;
     }
-    outf << " ";
-    outf << std::right << std::setw(3) << atom_i.RESN;
+    
+    outf << std::right << std::setw(4) << atom_i.RESN;
     outf << " ";
     outf << atom_i.CHAIN;
     string resi = std::to_string(atom_i.RESI)+ atom_i.iCODE;
@@ -858,25 +862,25 @@ PrintSASAResults(vector<atom_struct>& pdb,
     outf << std::setw(8) << std::fixed << std::setprecision(3) << atom_i.COORDS[0];
     outf << std::setw(8) << std::fixed << std::setprecision(3) << atom_i.COORDS[1];
     outf << std::setw(8) << std::fixed << std::setprecision(3) << atom_i.COORDS[2];
-    outf << "  1.00";
+    //outf << "  1.00";
+    outf << std::right << std::setw(6) << std::fixed << std::setprecision(2) << atom_i.VDW;
     outf << std::setw(6) << std::fixed << std::setprecision(2) << atom_i.SASA; 
-    outf << "          ";
+    //outf << "          ";
+    outf <<" " << std::left << std::setw(9) << atom_i.MOL_TYPE;
     outf << std::setw(2) << atom_i.ELEMENT;
     outf << std::setw(2) << atom_i.ATOM_TYPE << std::endl;
     try{
-      auto c = atom_i.NAME.at(0);
-      mw += aw.at(c);
+      mw += aw.at(atom_i.ELEMENT);
     }
     catch(exception e){
-      cerr << "UNKNOWN_ELEM " << atom_i.NAME << "\n";
     }
     total += atom_i.SASA;
   }
   float Arel = total / (4.44*pow(mw,0.77));
 
-  outf << "REMARK 001 TOTAL SURFACE AREA A^2" << total << std::endl;
+  outf << "REMARK 001 TOTAL SURFACE AREA (A^2)\t" << total << std::endl;
   cout << "Selected complex surface (A^2):\t" << total << std::endl;
-  outf << "REMARK 002 MOLECULAR WEIGHT (DALTON)" << mw << std::endl;
+  outf << "REMARK 002 MOLECULAR WEIGHT (DALTON)\t" << mw << std::endl;
   //cout << "MW: " << mw << "\n";
 //  outf << "REMARK 002  " << Arel << std::endl;
 //  cout << "AREL: " << Arel << "\n";

@@ -474,7 +474,7 @@ IsRESNSolvent(string resn){
 
 bool
 IsRESNIon(string resn){
-  const vector<string> ions = {"CA","CA","NA","MG","K", "MN","ZN","BA","CO","3CO","AG","NCO","2HP","ACT",
+  const vector<string> ions = {"NA","MG","K", "MN","ZN","BA","CO","3CO","AG","NCO","2HP","ACT",
                                "CS","CU","NI","PT","RB","SR","TL","BR","NRU","NH4"};
   return (find(ions.begin(),ions.end(),resn ) != ions.end());
 }
@@ -497,17 +497,17 @@ GetAtomType(string typefname,  //type dictionary
     auto name = atom.NAME;
     auto resn = atom.RESN;
     auto chain = atom.CHAIN;
-    
-    if(IsRESNSolvent(atom.RESN)){ 
-       /*cerr << "SOLVENT\t" << atom.STRUCTURE << "\t" << atom.ID <<"\t"
+    //cout << atom.NAME << " " << atom.RESN << "\n"; 
+    if(IsRESNSolvent(atom.RESN) ){ 
+       cerr << "SOLVENT\t" << atom.STRUCTURE << "\t" << atom.ID <<"\t"
             << atom.NAME << "\t"  << atom.RESN << "\t" << atom.RESI << "\t" 
-            << atom.CHAIN << atom.iCODE << "\n";*/
+            << atom.CHAIN << atom.iCODE << "\n";
       continue;
     }
     if( IsRESNIon(atom.RESN)){ 
-       /*cerr << "ION\t" << atom.STRUCTURE << "\t" << atom.ID <<"\t"
+       cerr << "ION\t" << atom.STRUCTURE << "\t" << atom.ID <<"\t"
             << atom.NAME << "\t"  << atom.RESN << "\t" << atom.RESI << "\t" 
-            << atom.CHAIN << atom.iCODE << "\n";*/
+            << atom.CHAIN << atom.iCODE << "\n";
       continue;
     }
     if(!typemap.count(resn)) resn = FixRESN(resn);
@@ -596,14 +596,16 @@ GetMolType(vector<atom_struct>& pdb){
   auto orgpdb = OrganizePDB(pdb);
   for (auto& chain : orgpdb){
     for (auto& res : chain){
-      string type;
+      string type = "";
       bool nuc = false;
       bool o2p = false;
       for (auto& atom_p : res){
         if (atom_p->HETATM) continue;
-        if(atom_p->NAME == "CA"){ 
+        //if(atom_p->NAME == "CA" || atom_p->NAME == "C" || atom_p->NAME =="N" || atom_p->NAME == "O" || atom_p->NAME=="OXT"){ 
+          //type = "PROTEIN";
+        if(find(amino_acids.begin(),amino_acids.end(),atom_p->RESN) != amino_acids.end()){
           type = "PROTEIN";
-          if(find(amino_acids.begin(),amino_acids.end(),atom_p->RESN) == amino_acids.end()) type = "LIGAND";
+          //else type ="";
           break;
         }
         if(atom_p->NAME == "P" || atom_p->NAME == "O5'" || atom_p->NAME == "C5'"){ 
@@ -617,7 +619,9 @@ GetMolType(vector<atom_struct>& pdb){
       }
       if(nuc && !o2p) type = "DNA";
       else if (type.empty()) type = "LIGAND";
+      //cout << "___" << std::endl;
       for (auto& atom_p : res){
+        //if (type == "LIGAND") cout << atom_p->print() << std::endl;
         if (!atom_p->HETATM) atom_p->MOL_TYPE = type;
         else atom_p->MOL_TYPE="LIGAND";
       }
@@ -933,21 +937,20 @@ MOL2_parse_map(map<string,vector<string>>& sections,
                         std::istream_iterator<string>());
     return ret;};
  
-  map<string,string> sybyl2ele = {
- 	{"C.3","C"}, {"C.2","C"}, {"C.ar","C"}, {"C.2","C"}, {"C.1","C"}, {"C.cat","C"}, 
-  {"N.4","N"}, {"N.3","N"}, {"N.2","N"}, {"N.pl3","N"}, {"N.1","N"},{"N.am","N"},{"N.ar","N"},
-  {"O.3","O"}, {"O.2","O"},	{"O.co2","O"},
-  {"S.3","S"},	{"S.2","S"}, {"S.O2","S"},	{"S.O","S"}, {"S.o2","S"},	{"S.o","S"}, 
-	{"H","H"},    
-	{"P.3","P"},
-  {"CL","CL"},{"Cl","CL"},
-  {"F","F"}};
+  map<string,string> sybyl2ele = {{"C.3","C"},{"C.2","C"}, {"C.ar","C"}, {"C.2","C"}, {"C.1","C"}, {"C.cat","C"}, 
+                                  {"N.4","N"}, {"N.3","N"}, {"N.2","N"}, {"N.pl3","N"}, {"N.1","N"},{"N.am","N"},{"N.ar","N"},
+                                  {"O.3","O"}, {"O.2","O"},{"O.co2","O"},
+                                  {"S.3","S"},{"S.2","S"}, {"S.O2","S"},{"S.O","S"}, {"S.o2","S"},{"S.o","S"}, 
+	                          {"H","H"},    
+                                  {"P.3","P"},
+                                  {"CL","CL"},{"Cl","CL"},
+                                  {"F","F"}};
   map<int,int> ID2pos;
   set<int> valid_ID;
  
   //get atoms
   if (!sections.count("@<TRIPOS>ATOM")){
-    cerr << "no valid atoms mol2";
+    cerr << "NO_VALID_ATOMS_MOL2\n";
     return;
   }
 
@@ -970,20 +973,36 @@ MOL2_parse_map(map<string,vector<string>>& sections,
     string chain = "_";
     int resi = 0;
     string icode = "";
-    if(tokens.size() > 6 || line.size() >= 56){ 
-      if(line.size() >= 56) resi = stoi(line.substr(52,4));
-      else resi = stoi(tokens[6]);
-      
+    //cout << line << "\n";
+    if(tokens.size() >= 6 || line.size() >= 56){ 
+      try{
+        int resi_ = stoi(line.substr(52,4));
+        resi = resi_;
+      }catch(exception e){}
+      if (resi == 0){
+       resi = stoi(tokens[6]);
+      }
+     
       if(tokens.size() > 7 || line.size() >= 69){
         string resn_;
-        if(line.size() >= 69) resn_= line.substr(58,9);
-        else resn_ = tokens[7];
-        resn_.erase(resn_.find_last_not_of(" \n\r\t")+1);
-        for(char& c : resn_){
-          if (!isdigit(c)){
-            resn += c;
+        if(line.size() >= 69){ 
+          try{
+            resn_= line.substr(58,9);
+          }
+          catch(exception e){
+            resn_ = tokens[7];
           }
         }
+        else resn_ = tokens[7];
+        resn_.erase(resn_.find_last_not_of(" \n\r\t")+1);
+        resn = resn_.substr(0,3);
+        /*for(char& c : resn_){
+          if (!isdigit(c)){
+            if (c == '-') break;
+            resn += c;
+          }
+          else break;
+        }*/
       }
       else resn = "___";
     }   
