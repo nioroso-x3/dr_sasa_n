@@ -29,10 +29,18 @@ string help = "Usage:\n"
 "  ./dr_sasa -m 1 -i 4ins.pdb -chain AB -chain CD\n\n"
 "  ./dr_sasa -m 1 -i 1bl0.pdb\n\n"
 " *Aminoacid dSASA mode: (mode 2)\n"
-"Calculates the delta SASA of all aminoacids inside a single object.\n"
+"Calculates the delta SASA of all aminoacids inside a single object. (intramolecular contacts)\n"
 "Outpus an interaction table and overlap table.\n"
 "EXAMPLE:\n"
 "  ./dr_sasa -m 2 -i 4ins.pdb -chain ABCD\n\n"
+" *Switches\n\n"
+"-nomatrix\tswitch will disable matrix output.\n\n"
+"-r float\tswitch will set the water probe radius in Angstroms. Default value is 1.4. Setting to 0 is equal to using the molecular surface.\n\n"
+" *Atom dSASA mode: (mode 3)\n"
+"Calculates the delta SASA of all atoms inside a single object. (intramolecular contacts)\n"
+"Outpus an interaction table and overlap table.\n"
+"EXAMPLE:\n"
+"  ./dr_sasa -m 3 -i 4ins.pdb -chain ABCD\n\n"
 " *Switches\n\n"
 "-nomatrix\tswitch will disable matrix output.\n\n"
 "-r float\tswitch will set the water probe radius in Angstroms. Default value is 1.4. Setting to 0 is equal to using the molecular surface.\n\n"
@@ -408,7 +416,7 @@ int main(int argc, char* argv[])
     return 0;
   }
   //dSASA inside atoms mode
-  if(mode == 10){
+  if(mode == 3){
     if (chain_sep.size() > 1){
       cerr << "Please define a single object.\n";
       return 0;

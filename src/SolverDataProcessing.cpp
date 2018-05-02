@@ -843,7 +843,7 @@ PrintSASAResults(vector<atom_struct>& pdb,
     if(!atom_i.ACTIVE) continue;
     if(atom_i.HETATM)  outf << "HETATM";
     else               outf << "ATOM  ";
-    outf << std::setw(5) << atom_i.ID;
+    outf << std::right << std::setw(5) << atom_i.ID;
     if(atom_i.NAME.size() == 4){
       outf << " ";
       outf << std::left << std::setw(4) << atom_i.NAME;
@@ -866,8 +866,9 @@ PrintSASAResults(vector<atom_struct>& pdb,
     outf << std::right << std::setw(6) << std::fixed << std::setprecision(2) << atom_i.VDW;
     outf << std::setw(6) << std::fixed << std::setprecision(2) << atom_i.SASA; 
     //outf << "          ";
-    outf <<" " << std::left << std::setw(9) << atom_i.MOL_TYPE;
-    outf << std::setw(2) << atom_i.ELEMENT;
+    outf <<" ";
+    outf << std::left << std::setw(8) << atom_i.MOL_TYPE;
+    outf << std::right << std::setw(3) << atom_i.ELEMENT;
     outf << std::setw(2) << atom_i.ATOM_TYPE << std::endl;
     try{
       mw += aw.at(atom_i.ELEMENT);
