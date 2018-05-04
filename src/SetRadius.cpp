@@ -98,6 +98,143 @@ void VDWcontainer::SetRadius(vector<atom_struct>& atoms,float probe){
       a.VDW = 1.735;
       set_to = "Cl";
     }
+    if (a.ELEMENT == "Al" || a.ELEMENT == "AL"){
+      a.VDW = 0.54;
+      set_to = "Al";
+    }
+    if (a.ELEMENT == "As" || a.ELEMENT == "AS"){
+      a.VDW = 0.58;
+      set_to = "As";
+    }
+    if (a.ELEMENT == "Au" || a.ELEMENT == "AU"){
+      a.VDW = 1.37;
+      set_to = "Au";
+    }
+    if (a.ELEMENT == "Ba" || a.ELEMENT == "BA"){
+      a.VDW = 1.35;
+      set_to = "Ba";
+    }
+    if (a.ELEMENT == "Be" || a.ELEMENT == "BE"){
+      a.VDW = 0.45;
+      set_to = "Be";
+    }
+    if (a.ELEMENT == "Bi" || a.ELEMENT == "BI"){
+      a.VDW = 1.03;
+      set_to = "Bi";
+    }
+    if (a.ELEMENT == "Ca" || a.ELEMENT == "CA"){
+      a.VDW = 1.00;
+      set_to = "Cl";
+    }
+    if (a.ELEMENT == "Cd" || a.ELEMENT == "CD"){
+      a.VDW = 0.95;
+      set_to = "Cl";
+    }
+    if (a.ELEMENT == "Cr" || a.ELEMENT == "CR"){
+      a.VDW = 0.73;
+      set_to = "Cr";
+    }
+    if (a.ELEMENT == "Cs" || a.ELEMENT == "CS"){
+      a.VDW = 1.67;
+      set_to = "Cs";
+    }
+    if (a.ELEMENT == "Cu" || a.ELEMENT == "CU"){
+      a.VDW = 0.73;
+      set_to = "Cu";
+    }
+    if (a.ELEMENT == "Fe" || a.ELEMENT == "FE"){
+      a.VDW = 0.65;
+      set_to = "Fe";
+    }
+    if (a.ELEMENT == "Ga" || a.ELEMENT == "GA"){
+      a.VDW = 0.62;
+      set_to = "Ga";
+    }
+    if (a.ELEMENT == "Ge" || a.ELEMENT == "GE"){
+      a.VDW = 0.73;
+      set_to = "Ge";
+    }
+    if (a.ELEMENT == "Hg" || a.ELEMENT == "HG"){
+      a.VDW = 1.02;
+      set_to = "Hg";
+    }
+    if (a.ELEMENT == "K" || a.ELEMENT == "K"){
+      a.VDW = 1.38;
+      set_to = "K";
+    }
+    if (a.ELEMENT == "Li" || a.ELEMENT == "LI"){
+      a.VDW = 0.76;
+      set_to = "Li";
+    }
+    if (a.ELEMENT == "Mg" || a.ELEMENT == "MG"){
+      a.VDW = 0.72;
+      set_to = "Mg";
+    }
+    if (a.ELEMENT == "Mn" || a.ELEMENT == "MN"){
+      a.VDW = 0.83;
+      set_to = "Mn";
+    }
+    if (a.ELEMENT == "Mo" || a.ELEMENT == "MO"){
+      a.VDW = 0.69;
+      set_to = "Mo";
+    }
+    if (a.ELEMENT == "Na" || a.ELEMENT == "NA"){
+      a.VDW = 1.02;
+      set_to = "Na";
+    }
+    if (a.ELEMENT == "Ni" || a.ELEMENT == "NI"){
+      a.VDW = 0.69;
+      set_to = "Ni";
+    }
+    if (a.ELEMENT == "Pb" || a.ELEMENT == "PB"){
+      a.VDW = 1.19;
+      set_to = "Co";
+    }
+    if (a.ELEMENT == "Pd" || a.ELEMENT == "PD"){
+      a.VDW = 0.86;
+      set_to = "Pd";
+    }
+    if (a.ELEMENT == "Rb" || a.ELEMENT == "RB"){
+      a.VDW = 1.52;
+      set_to = "Rb";
+    }
+    if (a.ELEMENT == "Sb" || a.ELEMENT == "SB"){
+      a.VDW = 0.76;
+      set_to = "Sb";
+    }
+    if (a.ELEMENT == "Sc" || a.ELEMENT == "SC"){
+      a.VDW = 0.75;
+      set_to = "Sc";
+    }
+    if (a.ELEMENT == "Sn" || a.ELEMENT == "SN"){
+      a.VDW = 0.69;
+      set_to = "Sn";
+    }
+    if (a.ELEMENT == "Sr" || a.ELEMENT == "SR"){
+      a.VDW = 1.18;
+      set_to = "Pt";
+    }
+    if (a.ELEMENT == "Tc" || a.ELEMENT == "TC"){
+      a.VDW = 0.65;
+      set_to = "Tc";
+    }
+    if (a.ELEMENT == "Ti" || a.ELEMENT == "TI"){
+      a.VDW = 0.86;
+      set_to = "Ti";
+    }
+    if (a.ELEMENT == "V"){
+      a.VDW = 0.79;
+      set_to = "V";
+    }
+    if (a.ELEMENT == "Zn" || a.ELEMENT == "ZN"){
+      a.VDW = 0.74;
+      set_to = "Zn";
+    }
+    if (a.ELEMENT == "Zr" || a.ELEMENT == "ZR"){
+      a.VDW = 0.72;
+      set_to = "Zr";
+    }
+
     if (set_to == "NONE"){
       a.VDW = 0;
       a.ACTIVE = false;
