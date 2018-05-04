@@ -1,0 +1,20 @@
+#Linux
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+$ cp dr_sasa /usr/local/bin
+
+#Mac OS
+Install a C++ compiler with an OpenMP implementation. In this example we will use Homebrew
+$ brew install llvm
+$ mkdir build
+$ cd build
+$ CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ \ 
+  LDFLAGS="-L/usr/local/opt/llvm/lib \
+  -Wl,-rpath,/usr/local/opt/llvm/lib" \
+  cmake ../
+$ cp dr_sasa /usr/local/bin
+
+#Windows
+TODO
