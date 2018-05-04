@@ -1,38 +1,52 @@
 #include "stdafx.h"
 #include "atom_struct.h"
+#include "SearchFunctions.h"
 #include "SetRadius.h"
 
 
 VDWcontainer::VDWcontainer(string vdwfile){
-  if(vdwfile != ""){
-    ifstream vdw(vdwfile,ifstream::in);
-    string current_res;
-    map<string, map<string,float> > newmap;  
-    while(vdw.good()){
-      string line;
-      getline(vdw,line);
-      if(line == "#vdw_end"){
-        break;
-      }
-      if(line.size() > 0 && line[0] != '#'){
-        istringstream buffer(line);
-        vector<string> tokens((istream_iterator<string>(buffer)),istream_iterator<string>());
-        if(tokens[0] == "RESIDUE"){
-           current_res = tokens[2];
-           if(newmap.count(current_res)==0){
-             newmap[current_res] = map<string,float>();
-           }
+  try{
+    if(vdwfile != ""){
+      map<string, map<string,float> > newmap;
+      vector<vector<string>> f = ReadTabSeparatedFile(vdwfile);
+      string cur_res = "";
+      if(f[0][0] == "PDB_RADIUS_FILE"){
+        for (auto& line : f){
+          if (line.size() != 3) continue;
+          if (line[0] == "RESIDUE"){
+            cur_res = line[2];
+            continue; 
+          }
+          if (line[0] == "ATOM"){
+            string name = line[1];
+            float vdw = stof(line[2]);
+            if (newmap.count(cur_res) == 0) {
+               map<string,float> tmp;
+               newmap[cur_res] = tmp;
+            }
+            newmap[cur_res][name] = vdw;
+         
+          }
         }
-        if(tokens[0] == "ATOM"){
-          string name(line, 5, 5);
-          name.erase( std::remove_if( name.begin(), name.end(), ::isspace ), name.end() );
-          newmap[current_res][name] = stod(tokens[tokens.size()-2]);
-        }
+        Map = newmap;
       }
+      else if(f[0][0] == "MOL2_RADIUS_FILE"){
+        map<string,float> newmap;
+        for (auto& line : f){
+          if(line.size() != 3) continue;
+          if(line[0] == "SYBYL"){
+            newmap[line[1]] = stof(line[2]);
+          }
+        }        
+        u_vdw_radii = newmap;
+        Mol2ext = true;
+      }    
     }
-    vdw.close();
-    Map = newmap;
   }
+  catch(exception e){
+    cerr << "Invalid VDW file, using defaults.\n";
+  }
+
 }
 
 VDWcontainer::VDWcontainer(){
@@ -244,16 +258,32 @@ void VDWcontainer::SetRadius(vector<atom_struct>& atoms,float probe){
     auto& atom = atoms[i];
     if(atom.DTYPE == "MOL2"){
       string ch_name = "";
-      if(sybyl2chimera.find(atom.CHARGE) != sybyl2chimera.end()) ch_name = sybyl2chimera[atom.CHARGE];
-      else{
+      if(!Mol2ext){
+        if(sybyl2chimera.find(atom.CHARGE) != sybyl2chimera.end()) ch_name = sybyl2chimera[atom.CHARGE];
+        else{
          
-      cerr << "MOL2_UNKNOWN_NAME "  <<atom.NAME <<"|" <<atom.RESN << "|" <<atom.RESI<< "|" << atom.CHAIN << "|" << atom.CHARGE << "|" << atom.ELEMENT << "\n";
-        set_unknown(atom);
-        continue;
+        cerr << "MOL2_UNKNOWN_NAME "  <<atom.NAME <<"|" <<atom.RESN << "|" <<atom.RESI<< "|" << atom.CHAIN << "|" << atom.CHARGE << "|" << atom.ELEMENT << "\n";
+          set_unknown(atom);
+          continue;
+        }
+      
+        float vdw = u_vdw_radii.at(ch_name);
+        atom.VDW = vdw;
+        atom.ACTIVE = true;
       }
-      float vdw = u_vdw_radii[ch_name];
-      atom.VDW = vdw;
-      atom.ACTIVE = true;
+      else{
+        float vdw;
+        try{
+          vdw = u_vdw_radii.at(atom.CHARGE); 
+          atom.VDW = vdw;
+          atom.ACTIVE = true;
+        }
+        catch(exception e){
+          cerr << "MOL2_UNKNOWN_NAME "  <<atom.NAME <<"|" <<atom.RESN << "|" <<atom.RESI<< "|" << atom.CHAIN << "|" << atom.CHARGE << "|" << atom.ELEMENT << "\n";
+          set_unknown(atom);
+          continue;
+        }
+      }
     }
     else{
       if(Map.count(atom.RESN) > 0){

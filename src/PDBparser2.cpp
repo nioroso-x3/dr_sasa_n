@@ -995,14 +995,14 @@ MOL2_parse_map(map<string,vector<string>>& sections,
         }
         else resn_ = tokens[7];
         resn_.erase(resn_.find_last_not_of(" \n\r\t")+1);
-        resn = resn_.substr(0,3);
-        /*for(char& c : resn_){
+        resn_ = resn_.substr(0,3);
+        for(char c : resn_){
           if (!isdigit(c)){
             if (c == '-') break;
             resn += c;
           }
           else break;
-        }*/
+        }
       }
       else resn = "___";
     }   

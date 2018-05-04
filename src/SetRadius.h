@@ -12,6 +12,7 @@ public:
   ~VDWcontainer(void);
     vector<float> Points;
 private:
+    bool Mol2ext = false;
     map<string, map<string,float> > Map = {
           {"ILE", {{ "C", 1.76}, {"OXT", 1.4}, {"CB", 1.87}, {"CA", 1.87},
                    {"O", 1.4}, {"N", 1.65}, {"CD1", 1.87}, {"CG1", 1.87},
