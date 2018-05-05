@@ -63,6 +63,9 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>&,  // pdb struct
 void
 PrintSASAResults(vector<atom_struct>&,         //pdb struct
          string);             //filename
+void
+PrintDSASAResults(vector<atom_struct>&,
+                 string               );
 
 
 
@@ -70,6 +73,7 @@ void
 PrintSASAResults_per_type(vector<atom_struct>&,         //pdb struct
               string,            //protein sasa
               string);                     //dna sasa
+
 void
 PrintSASAResults_per_type_and_res(vector<atom_struct>&,         //pdb struct
               string,

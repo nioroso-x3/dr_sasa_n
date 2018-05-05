@@ -877,11 +877,66 @@ PrintSASAResults(vector<atom_struct>& pdb,
     }
     total += atom_i.SASA;
   }
-  float Arel = total / (4.44*pow(mw,0.77));
+  //float Arel = total / (4.44*pow(mw,0.77));
 
   outf << "REMARK 001 TOTAL SURFACE AREA (A^2)\t" << total << std::endl;
   cout << "Selected complex surface (A^2):\t" << total << std::endl;
   outf << "REMARK 002 MOLECULAR WEIGHT (DALTON)\t" << mw << std::endl;
+  //cout << "MW: " << mw << "\n";
+//  outf << "REMARK 002  " << Arel << std::endl;
+//  cout << "AREL: " << Arel << "\n";
+  outf.close();
+}
+void
+PrintDSASAResults(vector<atom_struct>& pdb,
+                 string               output){
+  float total = 0;
+  float mw = 0;
+  ofstream outf(output, ofstream::out);
+    outf << "REMARK 000 BSA SOLVER" << std::endl;
+  map<string,float> aw = {{"C",12.011},{"H",1.0},{"O",15.999},{"N",14.007},{"P",30.973},
+                          {"S",32.06},{"F",19.0},{"Br",80.0 },{"BR",80.0 },{"Cl",35.45},{"CL",35.45}};
+
+  for (uint32 i = 0; i<pdb.size(); ++i){
+    auto& atom_i = pdb[i];
+    if(!atom_i.ACTIVE) continue;
+    if(atom_i.HETATM)  outf << "HETATM";
+    else               outf << "ATOM  ";
+    outf << std::right << std::setw(5) << atom_i.ID;
+    if(atom_i.NAME.size() == 4){
+      outf << " ";
+      outf << std::left << std::setw(4) << atom_i.NAME;
+    }else{
+      outf << "  ";
+      outf << std::left << std::setw(3) << atom_i.NAME;
+    }
+    
+    outf << std::right << std::setw(4) << atom_i.RESN;
+    outf << " ";
+    outf << atom_i.CHAIN;
+    string resi = std::to_string(atom_i.RESI)+ atom_i.iCODE;
+    outf << std::setw(4) << resi; 
+    outf << "    ";    
+    //atom_i.MOL_TYPE  << " ";
+    outf << std::setw(8) << std::fixed << std::setprecision(3) << atom_i.COORDS[0];
+    outf << std::setw(8) << std::fixed << std::setprecision(3) << atom_i.COORDS[1];
+    outf << std::setw(8) << std::fixed << std::setprecision(3) << atom_i.COORDS[2];
+    //outf << "  1.00";
+    outf << std::right << std::setw(6) << std::fixed << std::setprecision(2) << atom_i.VDW;
+    outf << std::setw(6) << std::fixed << std::setprecision(2) << atom_i.EXT0; 
+    //outf << "          ";
+    outf <<" ";
+    outf << std::left << std::setw(8) << atom_i.MOL_TYPE;
+    outf << std::right << std::setw(3) << atom_i.ELEMENT;
+    outf << std::setw(2) << atom_i.ATOM_TYPE << std::endl;
+    try{
+      mw += aw.at(atom_i.ELEMENT);
+    }
+    catch(exception e){
+    }
+    total += atom_i.EXT0;
+  }
+
   //cout << "MW: " << mw << "\n";
 //  outf << "REMARK 002  " << Arel << std::endl;
 //  cout << "AREL: " << Arel << "\n";

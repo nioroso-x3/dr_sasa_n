@@ -349,7 +349,7 @@ int main(int argc, char* argv[])
     string output1 = vsinput+".int_table";
     string output2 = vsinput+".overlaps";
     string output3 = input;
-
+    string output4 = input+".dsasa";
     VDWcontainer rad(vdwfile);
     rad.GenPoints();
     auto pdb = PDBparser(input,types,keepunknown);
@@ -366,7 +366,7 @@ int main(int argc, char* argv[])
 
     //PrintDNA_ProtResultsTable(pdb, output1);
     PrintDNA_ProtResults(pdb, output2);
-
+    PrintDSASAResults(pdb,output4);
     if(mtrx){ 
       PrintDNA_ProtResultsByAtomMatrix(pdb, output3,mtrxtype);
       Print_MatrixInsideAtom(pdb,vsinput);
