@@ -475,7 +475,7 @@ IsRESNSolvent(string resn){
 bool
 IsRESNIon(string resn){
   const vector<string> ions = {"NA","MG","K", "MN","ZN","BA","CO","3CO","AG","NCO","2HP","ACT",
-                               "CS","CU","NI","PT","RB","SR","TL","BR","NRU","NH4"};
+                               "CS","CU","NI","PT","RB","SR","TL","BR","NRU","NH4","CA","CL"};
   return (find(ions.begin(),ions.end(),resn ) != ions.end());
 }
 
