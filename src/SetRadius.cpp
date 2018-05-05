@@ -138,11 +138,11 @@ void VDWcontainer::SetRadius(vector<atom_struct>& atoms,float probe){
     }
     if (a.ELEMENT == "Ca" || a.ELEMENT == "CA"){
       a.VDW = 1.00;
-      set_to = "Cl";
+      set_to = "Ca";
     }
     if (a.ELEMENT == "Cd" || a.ELEMENT == "CD"){
       a.VDW = 0.95;
-      set_to = "Cl";
+      set_to = "Cd";
     }
     if (a.ELEMENT == "Cr" || a.ELEMENT == "CR"){
       a.VDW = 0.73;
@@ -202,7 +202,7 @@ void VDWcontainer::SetRadius(vector<atom_struct>& atoms,float probe){
     }
     if (a.ELEMENT == "Pb" || a.ELEMENT == "PB"){
       a.VDW = 1.19;
-      set_to = "Co";
+      set_to = "Pb";
     }
     if (a.ELEMENT == "Pd" || a.ELEMENT == "PD"){
       a.VDW = 0.86;
@@ -226,7 +226,7 @@ void VDWcontainer::SetRadius(vector<atom_struct>& atoms,float probe){
     }
     if (a.ELEMENT == "Sr" || a.ELEMENT == "SR"){
       a.VDW = 1.18;
-      set_to = "Pt";
+      set_to = "Sr";
     }
     if (a.ELEMENT == "Tc" || a.ELEMENT == "TC"){
       a.VDW = 0.65;
@@ -252,24 +252,27 @@ void VDWcontainer::SetRadius(vector<atom_struct>& atoms,float probe){
     if (set_to == "NONE"){
       a.VDW = 0;
       a.ACTIVE = false;
-    }};
+    }else{
+      a.ACTIVE = true;
+    }
+  };
 
   for (uint32 i = 0;i<atoms.size();++i){
     auto& atom = atoms[i];
     if(atom.DTYPE == "MOL2"){
       string ch_name = "";
       if(!Mol2ext){
-        if(sybyl2chimera.find(atom.CHARGE) != sybyl2chimera.end()) ch_name = sybyl2chimera[atom.CHARGE];
+        if(sybyl2chimera.find(atom.CHARGE) != sybyl2chimera.end()) {
+          ch_name = sybyl2chimera[atom.CHARGE];
+          float vdw = u_vdw_radii.at(ch_name);
+          atom.VDW = vdw;
+          atom.ACTIVE = true;
+        }
         else{
          
         cerr << "MOL2_UNKNOWN_NAME "  <<atom.NAME <<"|" <<atom.RESN << "|" <<atom.RESI<< "|" << atom.CHAIN << "|" << atom.CHARGE << "|" << atom.ELEMENT << "\n";
           set_unknown(atom);
-          continue;
         }
-      
-        float vdw = u_vdw_radii.at(ch_name);
-        atom.VDW = vdw;
-        atom.ACTIVE = true;
       }
       else{
         float vdw;
@@ -281,7 +284,6 @@ void VDWcontainer::SetRadius(vector<atom_struct>& atoms,float probe){
         catch(exception e){
           cerr << "MOL2_UNKNOWN_NAME "  <<atom.NAME <<"|" <<atom.RESN << "|" <<atom.RESI<< "|" << atom.CHAIN << "|" << atom.CHARGE << "|" << atom.ELEMENT << "\n";
           set_unknown(atom);
-          continue;
         }
       }
     }

@@ -919,7 +919,9 @@ MOL2parser(string fname,
   result.insert(result.end(),temp.begin(),temp.end());
   GetMolType(result);
   GetAtomType(typefname,result,KeepUnknown);
-  for(auto& atom : result) atom.STRUCTURE = GetBasename(fname);
+  for(auto& atom : result){ 
+    atom.STRUCTURE = GetBasename(fname);
+  }
   return result;
 }
 
@@ -1010,6 +1012,7 @@ MOL2_parse_map(map<string,vector<string>>& sections,
     float tf = 0;
     string ele = "";
     if(sybyl2ele.find(type) != sybyl2ele.end()) ele = sybyl2ele[type];
+    else ele = name.substr(0,2);
     atom_struct current_atom(ID,
                              resi,
                              icode,
