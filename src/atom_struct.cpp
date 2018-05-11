@@ -197,7 +197,7 @@ string atom_struct::print(){
 
   string t = "\t";
   tmp    << STRUCTURE << t<< ID << t << NAME << t << ALTLOC << t << RESN << iCODE << t
-         << chain << t << RESI << t << SASA << t <<MOL_TYPE << t <<EXT0 << t << ATOM_TYPE<< t  << INT_NUM << t << ENERGY;
+         << chain << t << RESI << t << SASA << t <<MOL_TYPE << t <<EXT0 <<t  << EXT1 << t << ATOM_TYPE<< t  << INT_NUM << t << ENERGY;
   result = tmp.str();
   return result;
 }

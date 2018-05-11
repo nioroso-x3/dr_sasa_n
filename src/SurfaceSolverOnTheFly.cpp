@@ -12,7 +12,9 @@ SolveInteractions(vector<atom_struct>& pdb,
 
   function<bool(const atom_struct&,const atom_struct&)> selector[] = {
       [](const atom_struct& i,const atom_struct& j){return true;},
-      [](const atom_struct& i,const atom_struct& j){return i.STRUCT_TYPE == j.STRUCT_TYPE;}
+      [](const atom_struct& i,const atom_struct& j){return i.MOL_TYPE == j.MOL_TYPE;},
+      [](const atom_struct& i,const atom_struct& j){return i.MOL_TYPE != j.MOL_TYPE;},
+      [](const atom_struct& i,const atom_struct& j){return i.CHAIN    != j.CHAIN;},
   };
 #pragma omp parallel for schedule(dynamic)
   for (uint32 i = 0; i < pdb_size; ++i){
@@ -96,6 +98,7 @@ SolveInteractionsALL(vector<atom_struct>&            pdb,
       
       return samestruct;
     }
+
     //cout << "m: "<<mode << "\t" << atom_i.STRUCT_TYPE << "\t" << atom_j.STRUCT_TYPE << "\n";
     if (mode == 0) return true;
     if (mode == 1){
@@ -127,6 +130,7 @@ SolveInteractionsALL(vector<atom_struct>&            pdb,
         {
           if(selector(atom_i,atom_j)){
             float rdist = sqrt(dist);
+            //if (mode == 0)cout << atom_i.print() << " / " << atom_j.print() << "\n";
             atom_i.INTERACTION_P.push_back(j);
             atom_j.INTERACTION_P.push_back(i);
             atom_i.DISTANCES[j] = rdist;
@@ -200,6 +204,7 @@ Generic_Solver(vector<atom_struct>&       pdb,
                vector<vector<string>>  obj1,
                int                     mode,
                int                     cl_mode){
+
   vector<atom_struct> pdb_n = pdb;
   uint32 shell_s3 = points.size();
   uint32 shell_s = shell_s3 / 3;
@@ -255,10 +260,9 @@ Generic_Solver(vector<atom_struct>&       pdb,
 
       if(!atom_j.ACTIVE) continue;
       auto* C_J = atom_j.COORDS.data();
-//       #pragma omp critical(debug)
-//     {
-//       cout << atom_i.STRUCT_TYPE << "\t" << atom_j.STRUCT_TYPE << "\n";
-//     }
+      //if((atom_i.EXT1 == 0.0) && (atom_j.EXT1 == 0.0)) continue;
+
+
       auto R_J2 = atom_j.RADIUS2;
 
       for (uint32 k = 0; k < shell_s; ++k){
@@ -273,7 +277,6 @@ Generic_Solver(vector<atom_struct>&       pdb,
         }
       }
     }
-
     for (auto it = SHELL_BURIED_MAP.begin(); it != SHELL_BURIED_MAP.end(); ++it) {
       //sort(it->second.begin(), it->second.end());
       SHELL_BURIED_COUNT.push_back(it->second);
@@ -304,3 +307,101 @@ Generic_Solver(vector<atom_struct>&       pdb,
     atom_i.AREA_BURIED_BY_ATOM_area = AREA_BURIED_BY_ATOM_area;
   }
 }
+
+void 
+DecoupledSolver(vector<atom_struct>&       pdb,
+                vector<float>&             points){
+  uint32 shell_s = points.size()/3.0;
+  auto* primes = PRIMES.data();
+  auto* p = points.data();
+  auto perm_comp= [&](vector<uint32>& a,vector<uint32>& b){
+    if(a.size() != b.size())
+      return false;
+    else{
+      long long a1 = 1;
+      long long b1 = 1;
+      for(uint32 i = 0; i < a.size();++i){
+        a1*=primes[a[i]];
+        b1*=primes[b[i]];
+      }
+      return (a1 == b1);
+    }
+  };
+
+
+  #pragma omp parallel for
+  for (uint32 i = 0; i < pdb.size();++i){
+    map<uint32, vector<uint32> > SHELL_BURIED_MAP;       //stores which atoms bury a certain point
+    vector<vector<uint32> > SHELL_BURIED_COUNT;          //stores vectors of atom positions
+    vector<vector<uint32> > AREA_BURIED_BY_ATOM_vector;  //stores all unique sets of atoms that bury points
+    vector<float> AREA_BURIED_BY_ATOM_area;             //stores the area that each unique set of atoms buries
+
+    auto& atom_i = pdb[i];
+    auto* C_I = atom_i.COORDS.data();
+    auto R_I = atom_i.RADIUS;
+// #pragma omp critical(debug)
+//     {
+//     cout << atom_i.ID  <<"\t" << atom_i.NAME <<  "\t" << atom_i.EXT1 << "\t" <<
+//             pdb_n[i].SASA <<"\t" << atom_i.SASA << "\t" << atom_i.STRUCT_TYPE <<"\n";
+//   }
+    if(!atom_i.ACTIVE) continue;
+    for (uint32 j = 0; j < atom_i.INTERACTION_P.size(); ++j){
+      auto& atom_j = pdb[atom_i.INTERACTION_P[j]];
+
+      if(!atom_j.ACTIVE) continue;
+      auto* C_J = atom_j.COORDS.data();
+      //if((atom_i.EXT1 == 0.0) && (atom_j.EXT1 == 0.0)) continue;
+
+
+      auto R_J2 = atom_j.RADIUS2;
+
+      for (uint32 k = 0; k < shell_s; ++k){
+        auto k3= k*3;
+        auto Xj = p[k3]     * R_I + C_I[0] - C_J[0];
+        auto Yj = p[k3 + 1] * R_I + C_I[1] - C_J[1];
+        auto Zj = p[k3 + 2] * R_I + C_I[2] - C_J[2];
+
+        float dist_j = Xj*Xj + Yj*Yj + Zj*Zj;
+        if (dist_j <= R_J2){
+          SHELL_BURIED_MAP[k].push_back(atom_i.INTERACTION_P[j]);
+        }
+      }
+    }
+    for (auto it = SHELL_BURIED_MAP.begin(); it != SHELL_BURIED_MAP.end(); ++it) {
+      //sort(it->second.begin(), it->second.end());
+      SHELL_BURIED_COUNT.push_back(it->second);
+    }
+    if(SHELL_BURIED_COUNT.size() == 0) continue;
+
+    //count which overlaps are the same
+    auto s_size = SHELL_BURIED_COUNT.size();
+    vector<char> COUNT_CHECK(s_size, false);
+    auto* c = COUNT_CHECK.data();
+    for (uint32 k = 0; k < s_size - 1; ++k) {
+      if (c[k]) continue;
+      c[k] = true;
+      uint32 count = 1;
+      for (uint32 l = k + 1; l < s_size; ++l){
+        if (c[l]) continue;
+        if (perm_comp(SHELL_BURIED_COUNT[k],SHELL_BURIED_COUNT[l])){
+        //if (SHELL_BURIED_COUNT[k] == SHELL_BURIED_COUNT[l]){
+          c[l] = true;
+          count++;
+        }
+      }
+      sort(SHELL_BURIED_COUNT[k].begin(),SHELL_BURIED_COUNT[k].end());
+      AREA_BURIED_BY_ATOM_vector.push_back(SHELL_BURIED_COUNT[k]);
+      AREA_BURIED_BY_ATOM_area.push_back(atom_i.AREA*(float)count / (float)shell_s);
+    }
+    atom_i.AREA_BURIED_BY_ATOM_vector = AREA_BURIED_BY_ATOM_vector;
+    atom_i.AREA_BURIED_BY_ATOM_area = AREA_BURIED_BY_ATOM_area;
+    int l = AREA_BURIED_BY_ATOM_vector.size();
+    for(uint i = 0; i < l; ++i){
+      auto v = AREA_BURIED_BY_ATOM_vector[i];
+      float a = AREA_BURIED_BY_ATOM_area[i];
+      atom_i.EXT0 += (a / v.size()); 
+    }
+
+  }
+}
+

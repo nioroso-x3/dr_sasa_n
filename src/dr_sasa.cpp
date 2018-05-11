@@ -112,7 +112,7 @@ MatrixAND(vector<char>& Imtrx1,
 int main(int argc, char* argv[])
 {
   //control variables
-  uint32 mode = 0;
+  int mode = 0;
   uint32 maxin = 8;
   uint32 maxout = 8;
   uint32 outs = 0;
@@ -374,7 +374,59 @@ int main(int argc, char* argv[])
 
     return 0;
   }
- 
+ //Generic structure dSASA decoupled
+  if(mode == -1){
+    int Imode = -1;
+    if (chain_sep.size() <= 1){
+      Imode = 2;
+      cout << "#Automatic molecular contact solver selected.\n";
+    }
+    else{
+      Imode = 3;
+      cout << "#Automatic chain contact solver selected.\n";
+    } 
+    stringstream stdinput;
+    stdinput << inputs[0];
+    if(chain_sep.size() == 1){
+      stdinput << ".";
+      for (uint32 i = 0; i < chain_sep.size(); ++i){
+        for (auto c : chain_sep[i]){
+          stdinput << c;
+        }
+        if (i < chain_sep.size() - 1) stdinput << "_vs_";
+      }
+    }
+    else if (chain_sep.size() >= 2){
+      stdinput << ".";
+      for (uint32 i = 0; i < chain_sep.size(); ++i){
+        for (auto c : chain_sep[i]){
+          stdinput << c;
+        }
+        if (i < chain_sep.size() - 1) stdinput << "_vs_";
+      }
+    }
+    string vsinput = stdinput.str();
+    string input = inputs[0];
+    string output1 = vsinput+".int_table";
+    string output2 = vsinput+".overlaps";
+    string output3 = input;
+    string output4 = input+".dsasa";
+    VDWcontainer rad(vdwfile);
+    rad.GenPoints();
+    auto pdb = PDBparser(input,types,keepunknown);
+    //
+    //for(auto item : pdb) cout << item.print() << "\n";
+    //
+    if(chain_sep.size() >= 1) ChainSelector(chain_sep,pdb);
+
+    rad.SetRadius(pdb, probe);
+    SolveInteractions(pdb,Imode);
+    DecoupledSolver(pdb,rad.Points);
+
+    PrintDSASAResults(pdb,output4);
+    return 0;
+  }
+
 
 //dSASA inside aminoacids mode
   if(mode == 2){

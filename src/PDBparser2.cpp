@@ -431,7 +431,7 @@ Steps:
     }
   }
   for (uint32 i = 0; i < pdb.size(); ++i){
-    auto& atom = pdb[i];
+//    auto& atom = pdb[i];
     if(removed_pos.end() != find(removed_pos.begin(),removed_pos.end(),i)) {
 //       cerr << "NORMAL_ALT_RM\t" << atom.STRUCTURE << "\t" << atom.ID <<"\t"
 //            << atom.NAME << "\t"  << atom.RESN << "\t" << atom.RESI << "\t" 
@@ -498,13 +498,25 @@ GetAtomType(string typefname,  //type dictionary
     auto resn = atom.RESN;
     auto chain = atom.CHAIN;
     //cout << atom.NAME << " " << atom.RESN << "\n"; 
-    if(IsRESNSolvent(atom.RESN) ){ 
+    if(IsRESNSolvent(atom.RESN)){ 
+       if(atom.RESN == atom.NAME){
        cerr << "SOLVENT\t" << atom.STRUCTURE << "\t" << atom.ID <<"\t"
             << atom.NAME << "\t"  << atom.RESN << "\t" << atom.RESI << "\t" 
             << atom.CHAIN << atom.iCODE << "\n";
+       
       continue;
+      }
+      if(atom.RESN =="HOH" && atom.NAME == "O"){
+    cerr << "SOLVENT\t" << atom.STRUCTURE << "\t" << atom.ID <<"\t"
+            << atom.NAME << "\t"  << atom.RESN << "\t" << atom.RESI << "\t" 
+            << atom.CHAIN << atom.iCODE << "\n";
+       
+      continue;
+
+
+       }
     }
-    if( IsRESNIon(atom.RESN)){ 
+    if( IsRESNIon(atom.RESN) && (atom.NAME == atom.RESN)){ 
        cerr << "ION\t" << atom.STRUCTURE << "\t" << atom.ID <<"\t"
             << atom.NAME << "\t"  << atom.RESN << "\t" << atom.RESI << "\t" 
             << atom.CHAIN << atom.iCODE << "\n";
@@ -1045,7 +1057,6 @@ MOL2_parse_map(map<string,vector<string>>& sections,
     for(string& line : sections["@<TRIPOS>BOND"]){
       vector<string> tokens = Split(line);
       if (tokens.size() < 3) continue;
-      int bID = stoi(tokens[0]);
       int oID = stoi(tokens[1]);
       int tID = stoi(tokens[2]);
       if(!valid_ID.count(oID) || !valid_ID.count(tID)) continue;

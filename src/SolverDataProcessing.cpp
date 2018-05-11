@@ -3,6 +3,7 @@
 #include "histogram.h"
 #include "SearchFunctions.h"
 #include <cstdio>
+#include <limits>
 #include "SolverDataProcessing.h"
 
 
@@ -1940,57 +1941,71 @@ PrintSplitAsaAtom(vector<atom_struct>& pdb,
     else if (data[i].MOL_TYPE == "LIGAND") ligd.push_back(data+i);
     else if (data[i].EXT1 > 0.0) bsa.push_back(data+i);
   }*/
-  float total_ASA,bb_ASA,sc_ASA,majorgroove_ASA,minorgroove_ASA,nogroove_ASA,polar_ASA,polar_bb_ASA,polar_sc_ASA,polar_majorgroove_ASA,polar_minorgroove_ASA,polar_nogroove_ASA,hyd_ASA,hyd_bb_ASA,hyd_sc_ASA,hyd_majorgroove_ASA,hyd_minorgroove_ASA,hyd_nogroove_ASA,lig_ASA,lig_polar_ASA,lig_hyd_ASA;
-  auto opdb = OrganizePDB(pdb);
+    auto opdb = OrganizePDB(pdb);
   for(auto& chain : opdb){
     for(auto& res : chain){
       for(auto& atom : res){
-        total_ASA = 0.0;
-        bb_ASA = 0.0;
-        sc_ASA = 0.0;
-        majorgroove_ASA = 0.0;
-        minorgroove_ASA = 0.0;
-        nogroove_ASA = 0.0;
-        polar_ASA = 0.0;
-        polar_bb_ASA = 0.0;
-        polar_sc_ASA = 0.0;
-        polar_majorgroove_ASA = 0.0;
-        polar_minorgroove_ASA = 0.0;
-        polar_nogroove_ASA = 0.0;
-        hyd_ASA = 0.0;
-        hyd_bb_ASA = 0.0;
-        hyd_sc_ASA = 0.0;
-        hyd_majorgroove_ASA = 0.0;
-        hyd_minorgroove_ASA = 0.0;
-        hyd_nogroove_ASA = 0.0;
-        lig_ASA = 0.0;
-        lig_polar_ASA = 0.0;
-        lig_hyd_ASA = 0.0;
-        bool found = false;
+        float total_ASA,bb_ASA,sc_ASA,majorgroove_ASA,minorgroove_ASA,nogroove_ASA,polar_ASA,polar_bb_ASA,polar_sc_ASA,polar_majorgroove_ASA,polar_minorgroove_ASA,polar_nogroove_ASA,hyd_ASA,hyd_bb_ASA,hyd_sc_ASA,hyd_majorgroove_ASA,hyd_minorgroove_ASA,hyd_nogroove_ASA,lig_ASA,lig_polar_ASA,lig_hyd_ASA;
+
+        total_ASA = NAN;
+        bb_ASA = NAN;
+        sc_ASA = NAN;
+        majorgroove_ASA = NAN;
+        minorgroove_ASA = NAN;
+        nogroove_ASA = NAN;
+        polar_ASA = NAN;
+        polar_bb_ASA = NAN;
+        polar_sc_ASA = NAN;
+        polar_majorgroove_ASA = NAN;
+        polar_minorgroove_ASA = NAN;
+        polar_nogroove_ASA = NAN;
+        hyd_ASA = NAN;
+        hyd_bb_ASA = NAN;
+        hyd_sc_ASA = NAN;
+        hyd_majorgroove_ASA = NAN;
+        hyd_minorgroove_ASA = NAN;
+        hyd_nogroove_ASA = NAN;
+        lig_ASA = NAN;
+        lig_polar_ASA = NAN;
+        lig_hyd_ASA = NAN;
         if(find(amino_acids.begin(),amino_acids.end(),atom->RESN) != amino_acids.end()){
           if(find(aa_backbone.begin(),aa_backbone.end(),atom->NAME) != aa_backbone.end()){
-            found = true;
+            if(std::isnan(total_ASA)) total_ASA = 0.0;
+            if(std::isnan(bb_ASA)) bb_ASA = 0.0;
+            
             total_ASA += atom->SASA;
             bb_ASA += atom->SASA;
           }
           else if(find(aa_sidechain.begin(),aa_sidechain.end(),atom->NAME) != aa_sidechain.end()){
-            found = true;
+            if(std::isnan(total_ASA)) total_ASA = 0.0;
+            if(std::isnan(sc_ASA)) sc_ASA = 0.0;
+            
             total_ASA += atom->SASA;
             sc_ASA += atom->SASA;
           }
           if(find(aa_polar_backbone.begin(),aa_polar_backbone.end(),atom->NAME) != aa_polar_backbone.end()){
+            if(std::isnan(polar_ASA)) polar_ASA = 0.0;
+            if(std::isnan(polar_bb_ASA)) polar_bb_ASA = 0.0;
+ 
             polar_ASA += atom->SASA;
             polar_bb_ASA += atom->SASA;
           }
           else if(find(aa_polar_sidechain.begin(),aa_polar_sidechain.end(),atom->NAME) != aa_polar_sidechain.end()){
+            if(std::isnan(polar_ASA)) polar_ASA = 0.0;
+            if(std::isnan(polar_sc_ASA)) polar_sc_ASA = 0.0;
+
             polar_ASA += atom->SASA;
             polar_sc_ASA += atom->SASA;
           }
           if(find(aa_hyd_backbone.begin(),aa_hyd_backbone.end(),atom->NAME) != aa_hyd_backbone.end()){
+            if(std::isnan(hyd_ASA)) hyd_ASA = 0.0;
+            if(std::isnan(hyd_bb_ASA)) hyd_bb_ASA = 0.0;
             hyd_ASA += atom->SASA;
             hyd_bb_ASA += atom->SASA;
           }
           else if(find(aa_hyd_sidechain.begin(),aa_hyd_sidechain.end(),atom->NAME) != aa_hyd_sidechain.end()){
+            if(std::isnan(hyd_ASA)) hyd_ASA = 0.0;
+            if(std::isnan(hyd_sc_ASA)) hyd_sc_ASA = 0.0;
             hyd_ASA += atom->SASA;
             hyd_sc_ASA += atom->SASA;
           }
@@ -2001,76 +2016,111 @@ PrintSplitAsaAtom(vector<atom_struct>& pdb,
           else resname2 = atom->RESN;
 
           if(find(dna_backbone.begin(),dna_backbone.end(),atom->NAME) != dna_backbone.end()){
-            found = true;
+            if(std::isnan(total_ASA)) total_ASA = 0.0;
+            if(std::isnan(bb_ASA)) bb_ASA = 0.0;
             total_ASA += atom->SASA;
             bb_ASA+= atom->SASA;
           }
           else if(find(dna_majorgroove[resname2].begin(),dna_majorgroove[resname2].end(),atom->NAME) != dna_majorgroove[resname2].end()){
-            found = true;
+            if(std::isnan(total_ASA)) total_ASA = 0.0;
+            if(std::isnan(sc_ASA)) sc_ASA = 0.0;
+            if(std::isnan(majorgroove_ASA)) majorgroove_ASA = 0.0;
+
             total_ASA += atom->SASA;
             sc_ASA += atom->SASA;
             majorgroove_ASA += atom->SASA;
           }
           else if(find(dna_minorgroove[resname2].begin(),dna_minorgroove[resname2].end(),atom->NAME) != dna_minorgroove[resname2].end()){
-            found = true;
+            if(std::isnan(total_ASA)) total_ASA = 0.0;
+            if(std::isnan(sc_ASA)) sc_ASA = 0.0;
+            if(std::isnan(minorgroove_ASA)) minorgroove_ASA = 0.0;
             total_ASA += atom->SASA;
             sc_ASA += atom->SASA;
             minorgroove_ASA += atom->SASA;
           }
           else if(find(dna_ambiguous[resname2].begin(),dna_ambiguous[resname2].end(),atom->NAME) != dna_ambiguous[resname2].end()){
-            found = true;
+            if(std::isnan(total_ASA)) total_ASA = 0.0;
+            if(std::isnan(sc_ASA)) sc_ASA = 0.0;
+            if(std::isnan(nogroove_ASA)) nogroove_ASA = 0.0;
             total_ASA += atom->SASA;
             sc_ASA += atom->SASA;
             nogroove_ASA += atom->SASA;
           }
           if(find(dna_polar_backbone.begin(),dna_polar_backbone.end(),atom->NAME) != dna_polar_backbone.end()){
+            if(std::isnan(polar_ASA)) polar_ASA = 0.0;
+            if(std::isnan(polar_bb_ASA)) polar_bb_ASA = 0.0;
             polar_ASA += atom->SASA;
             polar_bb_ASA += atom->SASA;
           }
           else if(find(dna_polar_majorgroove[resname2].begin(),dna_polar_majorgroove[resname2].end(),atom->NAME) != dna_polar_majorgroove[resname2].end()){
+            if(std::isnan(polar_ASA)) polar_ASA = 0.0;
+            if(std::isnan(polar_sc_ASA)) polar_sc_ASA = 0.0;
+            if(std::isnan(polar_majorgroove_ASA)) polar_majorgroove_ASA = 0.0;
             polar_ASA += atom->SASA;
             polar_sc_ASA += atom->SASA;
             polar_majorgroove_ASA += atom->SASA;
           }
           else if(find(dna_polar_minorgroove[resname2].begin(),dna_polar_minorgroove[resname2].end(),atom->NAME) != dna_polar_minorgroove[resname2].end()){
+            if(std::isnan(polar_ASA)) polar_ASA = 0.0;
+            if(std::isnan(polar_sc_ASA)) polar_sc_ASA = 0.0;
+            if(std::isnan(polar_minorgroove_ASA)) polar_minorgroove_ASA = 0.0;
             polar_ASA += atom->SASA;
             polar_sc_ASA += atom->SASA;
             polar_minorgroove_ASA += atom->SASA;
           }
           else if(find(dna_polar_ambiguous[resname2].begin(),dna_polar_ambiguous[resname2].end(),atom->NAME) != dna_polar_ambiguous[resname2].end()){
+            if(std::isnan(polar_ASA)) polar_ASA = 0.0;
+            if(std::isnan(polar_sc_ASA)) polar_sc_ASA = 0.0;
+            if(std::isnan(polar_nogroove_ASA)) polar_nogroove_ASA = 0.0;
             polar_ASA += atom->SASA;
             polar_sc_ASA += atom->SASA;
             polar_nogroove_ASA += atom->SASA;
           }
           
           if(find(dna_hyd_backbone.begin(),dna_hyd_backbone.end(),atom->NAME) != dna_hyd_backbone.end()){
+            if(std::isnan(hyd_ASA)) hyd_ASA = 0.0;
+            if(std::isnan(hyd_bb_ASA)) hyd_bb_ASA = 0.0;
             hyd_ASA += atom->SASA;
             hyd_bb_ASA += atom->SASA;
           }
           else if(find(dna_hyd_majorgroove[resname2].begin(),dna_hyd_majorgroove[resname2].end(),atom->NAME) != dna_hyd_majorgroove[resname2].end()){
+            if(std::isnan(hyd_ASA)) hyd_ASA = 0.0;
+            if(std::isnan(hyd_sc_ASA)) hyd_sc_ASA = 0.0;
+            if(std::isnan(hyd_majorgroove_ASA)) hyd_majorgroove_ASA = 0.0;
             hyd_ASA += atom->SASA;
             hyd_sc_ASA += atom->SASA;
             hyd_majorgroove_ASA += atom->SASA;
           }
           else if(find(dna_hyd_minorgroove[resname2].begin(),dna_hyd_minorgroove[resname2].end(),atom->NAME) != dna_hyd_minorgroove[resname2].end()){
+            if(std::isnan(hyd_ASA)) hyd_ASA = 0.0;
+            if(std::isnan(hyd_sc_ASA)) hyd_sc_ASA = 0.0;
+            if(std::isnan(hyd_minorgroove_ASA)) hyd_minorgroove_ASA = 0.0;
             hyd_ASA += atom->SASA;
             hyd_sc_ASA += atom->SASA;
             hyd_minorgroove_ASA += atom->SASA;
           }
           else if(find(dna_hyd_ambiguous[resname2].begin(),dna_hyd_ambiguous[resname2].end(),atom->NAME) != dna_hyd_ambiguous[resname2].end()){
+            if(std::isnan(hyd_ASA)) hyd_ASA = 0.0;
+            if(std::isnan(hyd_sc_ASA)) hyd_sc_ASA = 0.0;
+            if(std::isnan(hyd_nogroove_ASA)) hyd_nogroove_ASA = 0.0;
             hyd_ASA += atom->SASA;
             hyd_sc_ASA += atom->SASA;
             hyd_nogroove_ASA += atom->SASA;
           }
         }
         else if (atom->MOL_TYPE == "LIGAND"){
+          if(std::isnan(total_ASA)) total_ASA = 0.0;
           total_ASA += atom->SASA;
           if(atom->ELEMENT == "C")
           {
+            if(std::isnan(lig_ASA)) lig_ASA = 0.0;
+            if(std::isnan(lig_hyd_ASA)) lig_hyd_ASA = 0.0;
             lig_ASA += atom->SASA;
             lig_hyd_ASA += atom->SASA;
           }
           else{
+            if(std::isnan(lig_ASA)) lig_ASA = 0.0;
+            if(std::isnan(lig_polar_ASA)) lig_polar_ASA = 0.0;
             lig_ASA += atom->SASA;
             lig_polar_ASA += atom->SASA;
           }

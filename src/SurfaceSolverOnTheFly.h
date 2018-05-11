@@ -21,3 +21,7 @@ SolveInteractionsALL(vector<atom_struct>&,
 
 vector<char> 
 SURF_GenerateImtrx(vector<atom_struct>&);
+
+void 
+DecoupledSolver(vector<atom_struct>&,
+                vector<float>&      );
