@@ -81,7 +81,8 @@ PrintSASAResults_per_type_and_res(vector<atom_struct>&,         //pdb struct
 
 void
 Print_MatrixInsideAtom(vector<atom_struct>& pdb,
-                       string);
+                       string,
+                       int);
 
 /*void
 PrintSASAone_type_(vector<atom_struct>&,         //pdb struct
@@ -90,8 +91,8 @@ PrintSASAone_type_(vector<atom_struct>&,         //pdb struct
 
 
 void
-CalculateDNA_ProtInteractions(vector<atom_struct>&);  //pdb struct
-
+CalculateDNA_ProtInteractions(vector<atom_struct>&, //pdb struct
+                              int);                 //mode
 string                                         //returns string with data
 PrintDNA_ProtInteractions(vector<atom_struct>&,  //pdb struct
                           uint32);          //position of atom to query

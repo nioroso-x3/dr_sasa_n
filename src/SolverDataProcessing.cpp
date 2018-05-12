@@ -113,7 +113,7 @@ GenerateInterBSAMatrix(vector<atom_struct>&                  pdb,
                         map<vector<string>, vector<string>>& ROWres,
                         map<vector<string>, vector<uint32>>& COLatomtype,
                         map<vector<string>, vector<uint32>>& ROWatomtype ){
-  CalculateDNA_ProtInteractions(pdb);
+  CalculateDNA_ProtInteractions(pdb,0);
   set<string> object_types;
   for (auto& atom : pdb){
     object_types.insert(atom.STRUCT_TYPE);
@@ -258,7 +258,7 @@ GenerateIntraBSAMatrix(vector<atom_struct>& pdb,
                        vector<string>&      ROWres,
                        vector<uint32>&      COLatomtype,
                        vector<uint32>&      ROWatomtype ){
-  CalculateDNA_ProtInteractions(pdb);
+  CalculateDNA_ProtInteractions(pdb,0);
   set<string> object_types;
   for (auto& atom : pdb){
     object_types.insert(atom.CHAIN);
@@ -459,7 +459,7 @@ void
 PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
                                  string               output, // output filename
                                  int                  mode){  
-  CalculateDNA_ProtInteractions(pdb);
+  CalculateDNA_ProtInteractions(pdb,mode);
   set<string> object_types;
   for (auto& atom : pdb){
     object_types.insert(atom.STRUCT_TYPE);
@@ -538,10 +538,11 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
         string aID = atom.sID();
         string rID = atom.rsID();
         if(atom.STRUCT_TYPE == objA){
-          //cout << "ATOM: " << aID << " " << atom.STRUCT_TYPE << "\n";
+//          cout << "ATOM_A: " << aID << " " << atom.STRUCT_TYPE << "\n";
+//          cout << "ATOM_INT: " << atom.INTERACTION_SASA_P.size() << "\n";
           for(uint32 pos : atom.INTERACTION_SASA_P){
             if (pdb[pos].STRUCT_TYPE != objB) continue;
-            //cout <<"    OBJ_A: " << pdb[pos].sID() << "\n";
+//            cout <<"    OBJ_A: " << pdb[pos].sID() << "\n";
             for (uint32 r = 0; r < atom.ov_table.size(); ++r){ //iterate through this atoms overlap table
               auto& ov = atom.ov_table[r];                     //get vector of atom positions that form this overlap
               if(ov.end() != find(ov.begin(),ov.end(),pos)){   //check if this other atom is part of current overlap
@@ -558,10 +559,11 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
         }
         //same comments as object A
         if(atom.STRUCT_TYPE == objB){
-          //cout << "ATOM: " << atom.sID() << " " << atom.STRUCT_TYPE << "\n";
+//          cout << "ATOM_B: " << atom.sID() << " " << atom.STRUCT_TYPE << "\n";
+//          cout << "ATOM_INT: " << atom.INTERACTION_SASA_P.size() << "\n";
           for(uint32 pos : atom.INTERACTION_SASA_P){
             if (pdb[pos].STRUCT_TYPE != objA) continue;
-            //cout <<"    OBJ_B: " << pdb[pos].sID() << "\n";
+//            cout <<"    OBJ_B: " << pdb[pos].sID() << "\n";
             for (uint32 r = 0; r < atom.ov_table.size(); ++r){
               auto& ov = atom.ov_table[r];
               if(ov.end() != find(ov.begin(),ov.end(),pos)){
@@ -580,9 +582,9 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       if((accumulate(IcJ.begin(),IcJ.end(),0.0) == 0.0) &&
          (accumulate(JcI.begin(),JcI.end(),0.0) == 0.0)){
        //pragma omp critical(log)
-       // {
-          //cerr << "NULL_INTERACTION\tOBJ\t"<< objA << "\t<->\tOBJ\t"<<objB<<"\n";
-        //}
+        {
+         cerr << "NULL_INTERACTION\tOBJ\t"<< objA << "\t<->\tOBJ\t"<<objB<<"\n";
+        }
         continue;
       }
       //atom files
@@ -646,6 +648,7 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       AcBfileres.close();
       BcAfileres.close();
       //log to stdout
+      if(mode !=0) return;
       cout << "Object " << objA << " complexed surface (A^2):\t" << objA_sasa << std::endl;
       cout << "Object " << objB << " complexed surface (A^2):\t" << objB_sasa << std::endl; 
       cout << "Object " << objA << " uncomplexed surface (A^2):\t" << (objA_sasa+objA_bsa) << std::endl;
@@ -659,8 +662,9 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
 
 void
 Print_MatrixInsideAtom(vector<atom_struct>& pdb,
-                       string               output){
-  CalculateDNA_ProtInteractions(pdb);
+                       string               output,
+                       int                  mode){
+  CalculateDNA_ProtInteractions(pdb,mode);
   set<string> object_types;
   for (auto& atom : pdb){
     object_types.insert(atom.CHAIN);
@@ -1020,7 +1024,7 @@ PrintSASAone_type_(vector<atom_struct>& pdb,         //pdb struct
 }*/
 
 void
-CalculateDNA_ProtInteractions(vector<atom_struct>& pdb){
+CalculateDNA_ProtInteractions(vector<atom_struct>& pdb,int mode){
 //pragma omp parallel for schedule(dynamic)
   for (uint32 pos = 0; pos < pdb.size(); ++pos){
     auto& atom_i = pdb[pos];
@@ -1042,7 +1046,8 @@ CalculateDNA_ProtInteractions(vector<atom_struct>& pdb){
     for (uint32 i = 0; i < atom_i.AREA_BURIED_BY_ATOM_vector.size(); ++i){
       for (uint32 k = 0; k < atom_i.AREA_BURIED_BY_ATOM_vector[i].size(); ++k){
         uint32 other = atom_i.AREA_BURIED_BY_ATOM_vector[i][k];
-        if (interac_pos.end() == find(interac_pos.begin(), interac_pos.end(), other)) valid_overlaps[i] = false;
+        if(mode == 0) 
+          if (interac_pos.end() == find(interac_pos.begin(), interac_pos.end(), other)) valid_overlaps[i] = false;
       }
       if (!valid_overlaps[i]) continue;
       atom_i.AREA_BURIED_BY_ATOM_vector_valid.push_back(i);
@@ -1060,14 +1065,29 @@ CalculateDNA_ProtInteractions(vector<atom_struct>& pdb){
         vector<uint32> overlap;
         for (uint32 j = 0; j < overlaps; ++j){
           overlap.push_back(atom_i.AREA_BURIED_BY_ATOM_vector[i][j]);
-          //cout << atom_i.AREA_BURIED_BY_ATOM_vector[i][j] << " ";
+       //   cout << atom_i.AREA_BURIED_BY_ATOM_vector[i][j] << " ";
         }
         ov_table.push_back(overlap);
         ov_table_area.push_back(atom_i.AREA_BURIED_BY_ATOM_area[i]);
         ov_norm_area.push_back((float)atom_i.AREA_BURIED_BY_ATOM_area[i]/(float)overlap.size());
-        //cout << atom_i.AREA_BURIED_BY_ATOM_area[i] << std::endl;
+       // cout << atom_i.AREA_BURIED_BY_ATOM_area[i] << std::endl;
       }
     }
+/*    for (auto vec : ov_table){
+      cout << pdb[pos].NAME << " " << pdb[pos].RESN;
+      for (auto v : vec){
+        cout << " " << v;
+      }
+      cout << "\n";
+
+      }
+    cout << "ov_area";
+    for (auto v: ov_table_area) cout << " " << v ;
+    cout << "\n";
+    cout << "ov_norm";
+    for (auto v: ov_norm_area) cout << " " <<v ;
+    cout << "\n";
+*/
   }
 }
 

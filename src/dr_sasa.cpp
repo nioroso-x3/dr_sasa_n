@@ -368,8 +368,8 @@ int main(int argc, char* argv[])
     PrintDNA_ProtResults(pdb, output2);
     PrintDSASAResults(pdb,output4);
     if(mtrx){ 
-      PrintDNA_ProtResultsByAtomMatrix(pdb, output3,mtrxtype);
-      Print_MatrixInsideAtom(pdb,vsinput);
+      PrintDNA_ProtResultsByAtomMatrix(pdb, output3,0);
+      Print_MatrixInsideAtom(pdb,vsinput,0);
     }
 
     return 0;
@@ -424,6 +424,10 @@ int main(int argc, char* argv[])
     DecoupledSolver(pdb,rad.Points);
 
     PrintDSASAResults(pdb,output4);
+    if(mtrx) {
+      PrintDNA_ProtResultsByAtomMatrix(pdb, output3,1);
+      Print_MatrixInsideAtom(pdb,vsinput,1);
+    }
     return 0;
   }
 
@@ -461,7 +465,7 @@ int main(int argc, char* argv[])
 
     //PrintDNA_ProtResultsTable(pdb, output1);
    
-    if(mtrx)Print_MatrixInsideAtom(pdb,vsinput);
+    if(mtrx)Print_MatrixInsideAtom(pdb,vsinput,0);
     else PrintDNA_ProtResults(pdb, output2);
     return 0;
   }
@@ -497,7 +501,7 @@ int main(int argc, char* argv[])
     GeneratePairInteractionData(pdb);
 
     //PrintDNA_ProtResultsTable(pdb, output1);
-    if(mtrx)Print_MatrixInsideAtom(pdb,vsinput);
+    if(mtrx)Print_MatrixInsideAtom(pdb,vsinput,0);
     else PrintDNA_ProtResults(pdb, output2);
     return 0;
   }

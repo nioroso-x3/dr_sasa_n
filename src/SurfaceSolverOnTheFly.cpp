@@ -18,6 +18,8 @@ SolveInteractions(vector<atom_struct>& pdb,
   };
 #pragma omp parallel for schedule(dynamic)
   for (uint32 i = 0; i < pdb_size; ++i){
+    if (mode == 2) pdb[i].STRUCT_TYPE=pdb[i].MOL_TYPE;
+    if (mode == 3) pdb[i].STRUCT_TYPE=pdb[i].CHAIN;
     for (uint32 j = i + 1; j < pdb_size; ++j){
       auto& atom_i = pdb[i];
       auto* C_I = atom_i.COORDS.data();
@@ -36,6 +38,10 @@ SolveInteractions(vector<atom_struct>& pdb,
           atom_j.INTERACTION_P.push_back(i);
           atom_i.DISTANCES[j] = rdist;
           atom_j.DISTANCES[i] = rdist;
+          if(mode == 2 || mode == 3){
+            atom_i.INTERACTION_SASA_P.push_back(j);
+            atom_j.INTERACTION_SASA_P.push_back(i);
+          }
         }
       }
     }

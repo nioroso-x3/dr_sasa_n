@@ -109,7 +109,8 @@ void VDWcontainer::SetRadius(vector<atom_struct>& atoms,float probe){
       set_to = "Br";
     }
     if (a.ELEMENT == "Cl" || a.ELEMENT == "CL"){
-      a.VDW = 1.735;
+      if (a.NAME == a.RESN && (a.RESN == "CL" || a.RESN == "Cl")) a.VDW = 1.81;
+      else a.VDW=1.74;
       set_to = "Cl";
     }
     if (a.ELEMENT == "Al" || a.ELEMENT == "AL"){
