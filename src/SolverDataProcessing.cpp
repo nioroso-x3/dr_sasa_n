@@ -166,11 +166,11 @@ GenerateInterBSAMatrix(vector<atom_struct>&                  pdb,
       for (uint32 k = 0; k < ColLres.size();++k) ColMres[ColLres[k]] = k;
       for (uint32 k = 0; k < LineLres.size();++k) LineMres[LineLres[k]] = k;
 
-      IcJres.resize(ColLres.size()*LineLres.size(),0.0);
-      JcIres.resize(ColLres.size()*LineLres.size(),0.0);
+      IcJres.resize(ColLres.size()*LineLres.size(),NAN);
+      JcIres.resize(ColLres.size()*LineLres.size(),NAN);
 
-      IcJ.resize(ColL.size()*LineL.size(),0.0);
-      JcI.resize(ColL.size()*LineL.size(),0.0);
+      IcJ.resize(ColL.size()*LineL.size(),NAN);
+      JcI.resize(ColL.size()*LineL.size(),NAN);
       
       
       uint32 lm = ColL.size();
@@ -189,10 +189,14 @@ GenerateInterBSAMatrix(vector<atom_struct>&                  pdb,
               if(ov.end() != find(ov.begin(),ov.end(),pos)){   //check if this other atom is part of current overlap
                 uint32 col = ColM[aID];                        //current atom position in column
                 uint32 line = LineM[pdb[pos].sID()];           //other atom position in line
-                IcJ[col + line * lm] += atom.ov_norm_area[r];  //sum area to atom matrix
                 uint32 col_res = ColMres[rID];                 //column of current residue 
                 uint32 line_res = LineMres[pdb[pos].rsID()];   //line of current residue
-                IcJres[col_res + line_res * lm_res] += atom.ov_norm_area[r]; //sum area to residue matrix
+                uint64 idxA = col + line * lm;
+                uint64 idxR = col_res + line_res * lm_res;
+                if(std::isnan(IcJ[idxA])) IcJ[idxA] = 0.0;
+                if(std::isnan(IcJres[idxR])) IcJres[idxR] = 0.0;
+                IcJ[idxA] += atom.ov_norm_area[r];  //sum area to atom matrix
+                IcJres[idxR] += atom.ov_norm_area[r]; //sum area to residue matrix
               }
             }
           }
@@ -208,9 +212,13 @@ GenerateInterBSAMatrix(vector<atom_struct>&                  pdb,
               if(ov.end() != find(ov.begin(),ov.end(),pos)){
                 uint32 col = ColM[pdb[pos].sID()];
                 uint32 line = LineM[aID];
-                JcI[col + line * lm] += atom.ov_norm_area[r];
                 uint32 col_res = ColMres[pdb[pos].rsID()];
                 uint32 line_res = LineMres[rID];
+                uint64 idxA = col + line * lm;
+                uint64 idxR = col_res + line_res * lm_res;
+                if(std::isnan(JcI[idxA])) JcI[idxA] = 0.0;
+                if(std::isnan(JcIres[idxR])) JcIres[idxR] = 0.0;
+                JcI[col + line * lm] += atom.ov_norm_area[r];
                 JcIres[col_res + line_res * lm_res] += atom.ov_norm_area[r];
               }
             }
@@ -524,11 +532,11 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       for (uint32 k = 0; k < ColLres.size();++k) ColMres[ColLres[k]] = k;
       for (uint32 k = 0; k < LineLres.size();++k) LineMres[LineLres[k]] = k;
 
-      IcJres.resize(ColLres.size()*LineLres.size(),0.0);
-      JcIres.resize(ColLres.size()*LineLres.size(),0.0);
+      IcJres.resize(ColLres.size()*LineLres.size(),NAN);
+      JcIres.resize(ColLres.size()*LineLres.size(),NAN);
 
-      IcJ.resize(ColL.size()*LineL.size(),0.0);
-      JcI.resize(ColL.size()*LineL.size(),0.0);
+      IcJ.resize(ColL.size()*LineL.size(),NAN);
+      JcI.resize(ColL.size()*LineL.size(),NAN);
       
       
       uint32 lm = ColL.size();
@@ -548,11 +556,15 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
               if(ov.end() != find(ov.begin(),ov.end(),pos)){   //check if this other atom is part of current overlap
                 uint32 col = ColM[aID];                        //current atom position in column
                 uint32 line = LineM[pdb[pos].sID()];           //other atom position in line
-                IcJ[col + line * lm] += atom.ov_norm_area[r];  //sum area to atom matrix
-                objA_bsa += atom.ov_norm_area[r];
                 uint32 col_res = ColMres[rID];                 //column of current residue 
                 uint32 line_res = LineMres[pdb[pos].rsID()];   //line of current residue
-                IcJres[col_res + line_res * lm_res] += atom.ov_norm_area[r]; //sum area to residue matrix
+                uint64 idxA = col + line * lm;
+                uint64 idxR = col_res + line_res * lm_res;
+                if(std::isnan(IcJ[idxA])) IcJ[idxA] = 0.0;
+                if(std::isnan(IcJres[idxR])) IcJres[idxR] = 0.0;              
+                IcJ[idxA] += atom.ov_norm_area[r];  //sum area to atom matrix
+                IcJres[idxR] += atom.ov_norm_area[r]; //sum area to residue matrix
+                objA_bsa += atom.ov_norm_area[r];
               }
             }
           }
@@ -569,16 +581,21 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
               if(ov.end() != find(ov.begin(),ov.end(),pos)){
                 uint32 col = ColM[pdb[pos].sID()];
                 uint32 line = LineM[aID];
-                JcI[col + line * lm] += atom.ov_norm_area[r];
-                objB_bsa += atom.ov_norm_area[r];
                 uint32 col_res = ColMres[pdb[pos].rsID()];
                 uint32 line_res = LineMres[rID];
-                JcIres[col_res + line_res * lm_res] += atom.ov_norm_area[r];
+                uint64 idxA = col + line * lm;
+                uint64 idxR = col_res + line_res * lm_res;
+                if(std::isnan(JcI[idxA])) JcI[idxA] = 0.0;
+                if(std::isnan(JcIres[idxR])) JcIres[idxR] = 0.0;              
+                JcI[idxA] += atom.ov_norm_area[r];
+                JcIres[idxR] += atom.ov_norm_area[r];
+                objB_bsa += atom.ov_norm_area[r];
               }
             }
           }
         }
       }
+/*
       if((accumulate(IcJ.begin(),IcJ.end(),0.0) == 0.0) &&
          (accumulate(JcI.begin(),JcI.end(),0.0) == 0.0)){
        //pragma omp critical(log)
@@ -587,6 +604,7 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
         }
         continue;
       }
+*/
       //atom files
       stringstream AcB;                //dSASA in A caused by B outputfilename
       AcB << output << "." <<objA << "_vs_" << objB << ".by_atom.tsv";
