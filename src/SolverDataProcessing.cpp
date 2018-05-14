@@ -166,11 +166,11 @@ GenerateInterBSAMatrix(vector<atom_struct>&                  pdb,
       for (uint32 k = 0; k < ColLres.size();++k) ColMres[ColLres[k]] = k;
       for (uint32 k = 0; k < LineLres.size();++k) LineMres[LineLres[k]] = k;
 
-      IcJres.resize(ColLres.size()*LineLres.size(),NAN);
-      JcIres.resize(ColLres.size()*LineLres.size(),NAN);
+      IcJres.resize(ColLres.size()*LineLres.size(),0.0);
+      JcIres.resize(ColLres.size()*LineLres.size(),0.0);
 
-      IcJ.resize(ColL.size()*LineL.size(),NAN);
-      JcI.resize(ColL.size()*LineL.size(),NAN);
+      IcJ.resize(ColL.size()*LineL.size(),0.0);
+      JcI.resize(ColL.size()*LineL.size(),0.0);
       
       
       uint32 lm = ColL.size();
@@ -532,11 +532,11 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       for (uint32 k = 0; k < ColLres.size();++k) ColMres[ColLres[k]] = k;
       for (uint32 k = 0; k < LineLres.size();++k) LineMres[LineLres[k]] = k;
 
-      IcJres.resize(ColLres.size()*LineLres.size(),NAN);
-      JcIres.resize(ColLres.size()*LineLres.size(),NAN);
+      IcJres.resize(ColLres.size()*LineLres.size(),0.0);
+      JcIres.resize(ColLres.size()*LineLres.size(),0.0);
 
-      IcJ.resize(ColL.size()*LineL.size(),NAN);
-      JcI.resize(ColL.size()*LineL.size(),NAN);
+      IcJ.resize(ColL.size()*LineL.size(),0.0);
+      JcI.resize(ColL.size()*LineL.size(),0.0);
       
       
       uint32 lm = ColL.size();
@@ -595,7 +595,7 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
           }
         }
       }
-/*
+
       if((accumulate(IcJ.begin(),IcJ.end(),0.0) == 0.0) &&
          (accumulate(JcI.begin(),JcI.end(),0.0) == 0.0)){
        //pragma omp critical(log)
@@ -604,7 +604,7 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
         }
         continue;
       }
-*/
+
       //atom files
       stringstream AcB;                //dSASA in A caused by B outputfilename
       AcB << output << "." <<objA << "_vs_" << objB << ".by_atom.tsv";
@@ -726,8 +726,8 @@ Print_MatrixInsideAtom(vector<atom_struct>& pdb,
   for (uint32 k = 0; k < ColLres.size();++k) ColMres[ColLres[k]] = k;
   for (uint32 k = 0; k < LineLres.size();++k) LineMres[LineLres[k]] = k;
   
-  mtrx.resize(ColL.size()*LineL.size(),0.0);
-  mtrx_res.resize(ColLres.size()*LineLres.size(),0.0);
+  mtrx.resize(ColL.size()*LineL.size(),NAN);
+  mtrx_res.resize(ColLres.size()*LineLres.size(),NAN);
   uint32 lm = ColL.size();
   uint32 lm_res = ColLres.size();
 //pragma omp parallel for schedule(dynamic)
@@ -740,15 +740,19 @@ Print_MatrixInsideAtom(vector<atom_struct>& pdb,
       //cout <<"    OBJ_A: " << pdb[pos].sID() << "\n";
       for (uint32 r = 0; r < atom.ov_table.size(); ++r){
         auto& ov = atom.ov_table[r];
+        uint32 col = ColM[aID];
+        uint32 line = LineM[pdb[pos].sID()];
+        uint32 col_res = ColMres[rID];
+        uint32 line_res = LineMres[pdb[pos].rsID()];
+        uint64 idxR = col_res + line_res * lm_res;
+        uint64 idxA = col + line * lm;
+        if(std::isnan(mtrx_res[idxR])) mtrx_res[idxR] = 0.0;
+        if(std::isnan(mtrx[idxA])) mtrx[idxA] = 0.0;
         if(ov.end() != find(ov.begin(),ov.end(),pos)){
-          uint32 col = ColM[aID];
-          uint32 line = LineM[pdb[pos].sID()];
-          uint32 col_res = ColMres[rID];
-          uint32 line_res = LineMres[pdb[pos].rsID()];
           //pragma omp critical(printatommatrix)
           {
-          mtrx_res[col_res + line_res * lm_res] += atom.ov_norm_area[r];
-          mtrx[col + line * lm] += atom.ov_norm_area[r];
+          mtrx_res[idxR] += atom.ov_norm_area[r];
+          mtrx[idxA] += atom.ov_norm_area[r];
           }
         }
       }

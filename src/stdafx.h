@@ -22,7 +22,6 @@ typedef unsigned long long uint64;
 #include <set>
 #include <numeric>
 #include <queue>
-#include <omp.h>
 #include <stdexcept>
 #include <regex>
 #define PI 3.1415926f
