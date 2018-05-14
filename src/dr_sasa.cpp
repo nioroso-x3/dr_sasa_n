@@ -422,7 +422,7 @@ int main(int argc, char* argv[])
     rad.SetRadius(pdb, probe);
     SolveInteractions(pdb,Imode);
     DecoupledSolver(pdb,rad.Points);
-
+    PrintDNA_ProtResults(pdb, output2);
     PrintDSASAResults(pdb,output4);
     if(mtrx) {
       PrintDNA_ProtResultsByAtomMatrix(pdb, output3,1);

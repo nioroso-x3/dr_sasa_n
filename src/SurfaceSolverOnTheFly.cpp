@@ -401,13 +401,14 @@ DecoupledSolver(vector<atom_struct>&       pdb,
     }
     atom_i.AREA_BURIED_BY_ATOM_vector = AREA_BURIED_BY_ATOM_vector;
     atom_i.AREA_BURIED_BY_ATOM_area = AREA_BURIED_BY_ATOM_area;
+/*
     int l = AREA_BURIED_BY_ATOM_vector.size();
     for(uint i = 0; i < l; ++i){
       auto v = AREA_BURIED_BY_ATOM_vector[i];
       float a = AREA_BURIED_BY_ATOM_area[i];
       atom_i.EXT0 += (a / v.size()); 
     }
-
+*/
   }
 }
 

@@ -738,8 +738,6 @@ Print_MatrixInsideAtom(vector<atom_struct>& pdb,
    //cout << "ATOM: " << aID << " " << atom.STRUCT_TYPE << "\n";
    for(uint32 pos : atom.INTERACTION_SASA_P){
       //cout <<"    OBJ_A: " << pdb[pos].sID() << "\n";
-      for (uint32 r = 0; r < atom.ov_table.size(); ++r){
-        auto& ov = atom.ov_table[r];
         uint32 col = ColM[aID];
         uint32 line = LineM[pdb[pos].sID()];
         uint32 col_res = ColMres[rID];
@@ -748,6 +746,9 @@ Print_MatrixInsideAtom(vector<atom_struct>& pdb,
         uint64 idxA = col + line * lm;
         if(std::isnan(mtrx_res[idxR])) mtrx_res[idxR] = 0.0;
         if(std::isnan(mtrx[idxA])) mtrx[idxA] = 0.0;
+
+      for (uint32 r = 0; r < atom.ov_table.size(); ++r){
+        auto& ov = atom.ov_table[r];
         if(ov.end() != find(ov.begin(),ov.end(),pos)){
           //pragma omp critical(printatommatrix)
           {
@@ -891,7 +892,8 @@ PrintSASAResults(vector<atom_struct>& pdb,
     outf << std::setw(8) << std::fixed << std::setprecision(3) << atom_i.COORDS[2];
     //outf << "  1.00";
     outf << std::right << std::setw(6) << std::fixed << std::setprecision(2) << atom_i.VDW;
-    outf << std::setw(6) << std::fixed << std::setprecision(2) << atom_i.SASA; 
+    if (atom_i.SASA > 100.0) outf << std::setw(6) << std::fixed << std::setprecision(1) << atom_i.SASA;
+    else                     outf << std::setw(6) << std::fixed << std::setprecision(2) << atom_i.SASA;
     //outf << "          ";
     outf <<" ";
     outf << std::left << std::setw(8) << atom_i.MOL_TYPE;
@@ -950,7 +952,9 @@ PrintDSASAResults(vector<atom_struct>& pdb,
     outf << std::setw(8) << std::fixed << std::setprecision(3) << atom_i.COORDS[2];
     //outf << "  1.00";
     outf << std::right << std::setw(6) << std::fixed << std::setprecision(2) << atom_i.VDW;
-    outf << std::setw(6) << std::fixed << std::setprecision(2) << atom_i.EXT0; 
+    if (atom_i.EXT0 > 100.0) outf << std::setw(6) << std::fixed << std::setprecision(1) << atom_i.EXT0;
+    else                     outf << std::setw(6) << std::fixed << std::setprecision(2) << atom_i.EXT0;
+ 
     //outf << "          ";
     outf <<" ";
     outf << std::left << std::setw(8) << atom_i.MOL_TYPE;
