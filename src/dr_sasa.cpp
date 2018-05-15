@@ -18,7 +18,7 @@ string help = "Usage:\n"
 "Outputs just add a .asa and .atmasa to the input filename if not defined by the user.\n"
 "The .asa file has the SASA values in the B-factor column, and a internal atom typing in the charge column reserved for future use.\n"
 "EXAMPLE:\n"
-"  ./dr_sasa -m 0 -i 4ins.pdb -o 4ins.asa\n\n "
+"  ./dr_sasa -m 0 -i 4ins.pdb -o 4ins.asa\n\n"
 " *Delta SASA by chain ID or automatic: (mode 1)\n"
 "Calculates the delta SASA in various objects contained in a single pdb or mol2 file.\n"
 "Objects are currently defined only by their chains.\n"
@@ -38,10 +38,17 @@ string help = "Usage:\n"
 "Outpus an interaction table and overlap table.\n"
 "EXAMPLE:\n"
 "  ./dr_sasa -m 3 -i 4ins.pdb -chain ABCD\n\n"
+" *Atom contact surface mode: (mode -1)\n"
+"Calculates the contact surface between all the chains of a defined object, or if no chains are defined, between different molecular types.\n"
+"Outpus interaction tables.\n"
+"EXAMPLE:\n"
+"  ./dr_sasa -m -1 -i 1bl0.pdb\n\n"
 " *Switches\n\n"
 "-nomatrix\tswitch will disable matrix output.\n\n"
 "-r float\tswitch will set the water probe radius in Angstroms. Default value is 1.4. Setting to 0 is equal to using the molecular surface.\n\n"
 "-v\tAllows the user to define their own VdW radii for PDBs or MOL2 files. Examples are distributed under the utils folder.\n\n"
+
+
 ;
 
 vector<char>
