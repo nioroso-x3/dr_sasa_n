@@ -613,8 +613,8 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       ofstream AcBfile(AcB.str());
       ofstream BcAfile(BcA.str());
 
-      AcBfile << objA << " <- " << objB << "\t"; //dSASA B causes to A
-      BcAfile << objA << " -> " << objB << "\t"; //dSASA A causes to B
+      AcBfile << objA << "<-" << objB <<"/SUM-v" << "\t"; //dSASA B causes to A
+      BcAfile << objA << "->" << objB << "/SUM->" <<"\t"; //dSASA A causes to B
       
       for (uint s = 0; s < ColL.size(); ++s) {
 
@@ -645,8 +645,8 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       ofstream AcBfileres(AcBres.str());
       ofstream BcAfileres(BcAres.str());
 
-      AcBfileres << objA << "<-" << objB << "\t"; //dSASA B causes to A
-      BcAfileres << objA << "->" << objB << "\t"; //dSASA A causes to B
+      AcBfileres << objA << "<-" << objB << "/SUM-v"<< "\t"; //dSASA B causes to A
+      BcAfileres << objA << "->" << objB <<"/SUM->" <<"\t"; //dSASA A causes to B
       for (auto s : ColLres) {
         AcBfileres << s << "\t";
         BcAfileres << s << "\t";
@@ -666,11 +666,12 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       AcBfileres.close();
       BcAfileres.close();
       //log to stdout
-      if(mode !=0) return;
-      cout << "Object " << objA << " complexed surface (A^2):\t" << objA_sasa << std::endl;
-      cout << "Object " << objB << " complexed surface (A^2):\t" << objB_sasa << std::endl; 
-      cout << "Object " << objA << " uncomplexed surface (A^2):\t" << (objA_sasa+objA_bsa) << std::endl;
-      cout << "Object " << objB << " uncomplexed surface (A^2):\t" << (objB_sasa+objB_bsa) << std::endl; 
+      if(mode == 0){
+        cout << "Object " << objA << " complexed surface (A^2):\t" << objA_sasa << std::endl;
+        cout << "Object " << objB << " complexed surface (A^2):\t" << objB_sasa << std::endl;
+        cout << "Object " << objA << " uncomplexed surface (A^2):\t" << (objA_sasa+objA_bsa) << std::endl;
+        cout << "Object " << objB << " uncomplexed surface (A^2):\t" << (objB_sasa+objB_bsa) << std::endl;
+      }
       cout << objA << " <--- " << objB << " buried surface (A^2):\t" << objA_bsa  << std::endl;
       cout << objA << " ---> " << objB << " buried surface (A^2):\t" << objB_bsa  << std::endl;
       cout << "Interface "<< objA << "/" << objB << " (A^2):\t" << ((objA_bsa+objB_bsa) / 2.0)  << std::endl;
