@@ -1956,8 +1956,8 @@ PrintSplitAsaAtom(vector<atom_struct>& pdb,
                     {"DT",{}},
                     {"U",{}}}; // RNA
 
-  const char* formatS = "%s\t%s\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f";
-  string header = "atmname\tresname\tchain\tresnum\ttotal_ASA\tbb_ASA\tsc_ASA\tmajorgroove_ASA\tminorgroove_ASA\tnogroove_ASA\tpolar_ASA\tpolar_bb_ASA\tpolar_sc_ASA\tpolar_majorgroove_ASA\tpolar_minorgroove_ASA\tpolar_nogroove_ASA\thyd_ASA\thyd_bb_ASA\thyd_sc_ASA\thyd_majorgroove_ASA\thyd_minorgroove_ASA\thyd_nogroove_ASA\tlig_ASA\tlig_polar_ASA\tlig_hyd_ASA\tX\tY\tZ";
+  const char* formatS = "%s\t%s\t%d\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f";
+  string header = "atmname\tresname\tchain\tresnum\tID\ttotal_ASA\tbb_ASA\tsc_ASA\tmajorgroove_ASA\tminorgroove_ASA\tnogroove_ASA\tpolar_ASA\tpolar_bb_ASA\tpolar_sc_ASA\tpolar_majorgroove_ASA\tpolar_minorgroove_ASA\tpolar_nogroove_ASA\thyd_ASA\thyd_bb_ASA\thyd_sc_ASA\thyd_majorgroove_ASA\thyd_minorgroove_ASA\thyd_nogroove_ASA\tlig_ASA\tlig_polar_ASA\tlig_hyd_ASA\tX\tY\tZ";
   //ligands total, polar(O,N) and hydrophobic(everything else).
   string obj_name = pdb[0].STRUCTURE;
 #ifdef WIN32__
@@ -2174,7 +2174,7 @@ PrintSplitAsaAtom(vector<atom_struct>& pdb,
         }
         outf << atom->NAME << "\t";
         char buffer[8192];
-        snprintf(buffer,8192,formatS,atom->RESN.c_str(),atom->CHAIN.c_str(),atom->RESI,total_ASA,bb_ASA,sc_ASA,majorgroove_ASA,minorgroove_ASA,nogroove_ASA,polar_ASA,polar_bb_ASA,polar_sc_ASA,polar_majorgroove_ASA,polar_minorgroove_ASA,polar_nogroove_ASA,hyd_ASA,hyd_bb_ASA,hyd_sc_ASA,hyd_majorgroove_ASA,hyd_minorgroove_ASA,hyd_nogroove_ASA,lig_ASA,lig_polar_ASA,lig_hyd_ASA,atom->COORDS[0],atom->COORDS[1],atom->COORDS[2]);
+        snprintf(buffer,8192,formatS,atom->RESN.c_str(),atom->CHAIN.c_str(),atom->RESI,atom->ID,total_ASA,bb_ASA,sc_ASA,majorgroove_ASA,minorgroove_ASA,nogroove_ASA,polar_ASA,polar_bb_ASA,polar_sc_ASA,polar_majorgroove_ASA,polar_minorgroove_ASA,polar_nogroove_ASA,hyd_ASA,hyd_bb_ASA,hyd_sc_ASA,hyd_majorgroove_ASA,hyd_minorgroove_ASA,hyd_nogroove_ASA,lig_ASA,lig_polar_ASA,lig_hyd_ASA,atom->COORDS[0],atom->COORDS[1],atom->COORDS[2]);
         string data = string(buffer);
         outf << data << std::endl;
       }
