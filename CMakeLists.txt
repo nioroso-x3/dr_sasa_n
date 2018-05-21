@@ -16,8 +16,4 @@ file(GLOB_RECURSE files "src/*.cpp")
 add_executable (dr_sasa ${files})
 set_property(TARGET dr_sasa PROPERTY CXX_STANDARD 11)
 set_property(TARGET dr_sasa PROPERTY CXX_STANDARD_REQUIRED ON)
-add_definitions(-static -Wall -O3 -mcpu=native -mtune=native)
-
-#target_link_libraries (dr_sasa ${OpenCL_LIBRARIES} -lgomp -lpthread)
-
-#target_link_libraries (dr_sasa ${PCL_LIBRARIES} ${OpenCL_LIBRARIES})
+add_definitions(-Wall -O3 -mcpu=native -mtune=native)

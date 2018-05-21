@@ -2,6 +2,7 @@
 // or project specific include files that are used frequently, but
 // are changed infrequently
 //
+typedef unsigned int uint;
 typedef unsigned int uint32;
 typedef unsigned long long uint64;
 #include <cstdio>

@@ -4,7 +4,7 @@ dr-sasa is a solvent accessible surface area calculation software for biological
 
 ## Operation Modes
 
-There are five operation modes. The first does common ASA calculations, the second calculates the BSA between varios chains or molecular objects, and third and fourth calculate BSA between residues and atoms as if they were independent objects.  
+There are five operation modes. The first does common ASA calculations, the second calculates the BSA between various chains or molecular objects, and third and fourth calculate BSA between residues and atoms as if they were independent objects.  
 The fifth mode does not use the SASA or BSA for its calculations. It simply calculates the raw contact surfaces between chains or molecular objects.
 
 ## Usage
