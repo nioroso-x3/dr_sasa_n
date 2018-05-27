@@ -42,11 +42,12 @@ string help = "\x1b[1mUSAGE:\x1b[0m\n"
 "Calculates the contact surface between all the chains of a defined object, or if no chains are defined, between different molecular types.\n"
 "Outpus interaction tables.\n"
 "EXAMPLE:\n"
-"  ./dr_sasa -m -1 -i 1bl0.pdb\n\n"
+"  ./dr_sasa -m 4 -i 1bl0.pdb\n\n"
 " *Switches\n\n"
 "-nomatrix\tswitch will disable matrix output.\n\n"
 "-r float\tswitch will set the water probe radius in Angstroms. Default value is 1.4. Setting to 0 is equal to using the molecular surface.\n\n"
 "-v\tAllows the user to define their own VdW radii for PDBs or MOL2 files. Examples are distributed under the utils folder.\n\n"
+"-no_atmasa_autosort\tSpecial setting for atmasa output files. Disables the autosorter, useful for malformed mol2 or pdbs with atoms with missing chain identifers. \n\n"
 
 
 ;
@@ -134,7 +135,7 @@ int main(int argc, char* argv[])
   int cl_mode = 0;
   bool keepunknown = true;
   int mtrxtype = 0;
-  
+  bool atmsrt = true;
   for (uint32 i = 0; i < maxout; ++i){
   #ifdef __WIN32
   outputs.push_back("NUL");
@@ -219,6 +220,10 @@ int main(int argc, char* argv[])
       if (c == "-outtype"){
         mtrxtype = 1;
       }
+      if (c == "-no_atmasa_autosort"){
+        atmsrt = false;
+      }
+
     }
     catch(exception e){
       cerr <<"Exception in parsing argument \""<< c<< "\"\n";
@@ -228,6 +233,15 @@ int main(int argc, char* argv[])
   if (inputs.size() == 0) {
     cerr << "No input.\n";
     return -1;
+  }
+
+  //set atmasa mode
+  int atmasa_sasa = 0;
+  int atmasa_bsa = 1;
+  if (!atmsrt){
+    atmasa_sasa = 2;
+    atmasa_bsa  = 3;
+    cerr << "#ATMASA auto sorter disabled\n";
   }
 
   //basic sasa solver
@@ -269,7 +283,7 @@ int main(int argc, char* argv[])
     SolveInteractions(pdb,0);
     SimpleSolverCL(pdb,rad.Points,cl_mode);
     PrintSASAResults(pdb,output);
-    PrintSplitAsaAtom(pdb,splitasa);
+    PrintSplitAsaAtom(pdb,splitasa,atmasa_sasa);
     if (mode == 0) return 0;
   }
   //relative ASA
@@ -292,7 +306,7 @@ int main(int argc, char* argv[])
     RelativeSASA(pdb);
     cout << input << " done:\n";
     PrintSASAResults(pdb,output);
-    PrintSplitAsaAtom(pdb,splitasa); 
+    PrintSplitAsaAtom(pdb,splitasa,atmasa_sasa); 
     return 0;
   }
 
@@ -353,7 +367,7 @@ int main(int argc, char* argv[])
     }
     string vsinput = stdinput.str();
     string input = inputs[0];
-    string output1 = vsinput+".int_table";
+    string output1 = vsinput+".datmasa";
     string output2 = vsinput+".overlaps";
     string output3 = input;
     string output4 = input+".dsasa";
@@ -374,6 +388,8 @@ int main(int argc, char* argv[])
     //PrintDNA_ProtResultsTable(pdb, output1);
     PrintDNA_ProtResults(pdb, output2);
     PrintDSASAResults(pdb,output4);
+    PrintSplitAsaAtom(pdb,output1,atmasa_bsa); 
+
     if(mtrx){ 
       PrintDNA_ProtResultsByAtomMatrix(pdb, output3,0);
       Print_MatrixInsideAtom(pdb,vsinput,0);
@@ -382,7 +398,7 @@ int main(int argc, char* argv[])
     return 0;
   }
  //Generic structure dSASA decoupled
-  if(mode == -1){
+  if(mode == 4){
     int Imode = -1;
     if (chain_sep.size() <= 1){
       Imode = 2;
@@ -414,7 +430,7 @@ int main(int argc, char* argv[])
     }
     string vsinput = stdinput.str();
     string input = inputs[0];
-    string output1 = vsinput+".int_table";
+    string output1 = vsinput+".datmasa";
     string output2 = vsinput+".overlaps";
     string output3 = input;
     string output4 = input+".dsasa";
@@ -431,6 +447,7 @@ int main(int argc, char* argv[])
     DecoupledSolver(pdb,rad.Points);
     PrintDNA_ProtResults(pdb, output2);
     PrintDSASAResults(pdb,output4);
+    PrintSplitAsaAtom(pdb,output1,atmasa_bsa);
     if(mtrx) {
       PrintDNA_ProtResultsByAtomMatrix(pdb, output3,1);
       Print_MatrixInsideAtom(pdb,vsinput,1);

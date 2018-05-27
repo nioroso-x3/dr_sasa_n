@@ -154,7 +154,7 @@ CountInteractionsP(float&,                  //reference to value holding amount 
                    float&,           //reference to value holding amount of interacting xna atoms
                    vector<atom_struct>&);    //pdb struct
 void
-PrintSplitAsaAtom(vector<atom_struct>&,string);
+PrintSplitAsaAtom(vector<atom_struct>&,string,int);
 
 void
 PrintSplitAsaRes(vector<atom_struct>&,string);

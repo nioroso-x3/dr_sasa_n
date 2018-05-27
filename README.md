@@ -1,4 +1,4 @@
-# dr-sasa - Solvent Accessible Surface Area calculation software for biological molecules
+#dr-sasa - Solvent Accessible Surface Area calculation software for biological molecules
 
 dr-sasa is a solvent accessible surface area calculation software for biological molecules, that supports proteins, dna and rna inputs. The input files can be in the PDB or MOL2 format. PDB format files will use a NACCESS compatible VdW radii lookup table, while MOL2 formats will use the same VdW radii used in Chimera.
 
@@ -53,7 +53,7 @@ Outpus interaction tables.
 EXAMPLE:
 ###
 ```
-  ./dr_sasa -m -1 -i 1bl0.pdb
+  ./dr_sasa -m 4 -i 1bl0.pdb
 ```
  -Switches  
 
@@ -61,9 +61,9 @@ EXAMPLE:
 
 -r float  switch will set the water probe radius in Angstroms. Default value is 1.4. Setting to 0 is equal to using the molecular surface.
 
--v  Allows the user to define their own VdW radii for PDBs or MOL2 files. Examples are distributed under the utils folder.
+-v  Allows the user to define their own VdW radii for PDBs or MOL2 files. Examples are distributed under the utils folder, as vdw.radii and vdiw.radii.mol2.
 
-
+-no_atmasa_autosort Special setting for atmasa output files. Disables the autosorter, useful for malformed mol2 or pdbs with atoms with missing chain identifers.
 ## Compiling
 After cloning the source, enter the directory and create a build directory:
 
