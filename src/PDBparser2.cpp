@@ -492,7 +492,7 @@ GetAtomType(string typefname,  //type dictionary
   }  
   string c_chain = "NULL";
   vector<atom_struct> new_pdb;
-
+  
   for (auto& atom : pdb){
     auto name = atom.NAME;
     auto resn = atom.RESN;
@@ -883,10 +883,10 @@ MOL2parser(string fname,
  
 
   ifstream mol2(fname);
-/*  auto Trim = [](string& str){str.erase(std::remove_if(str.begin(),
+  auto Trim = [](string& str){str.erase(std::remove_if(str.begin(),
                                                        str.end(),
                                                        ::isspace),
-                                                       str.end());};*/
+                                                       str.end());};
 
  
   string lastsection = "";
@@ -897,6 +897,8 @@ MOL2parser(string fname,
     vector<string> cline;
     getline(mol2,line);
     std::replace(line.begin(),line.end(),'\t',' ');
+    line.erase( std::remove(line.begin(),line.end(), '\r'), line.end() );
+
     if (std::string::npos != line.find("@<TRIPOS>MOLECULE")){
       //new molecule found
       if(sections.size() != 0){ 
@@ -970,7 +972,6 @@ MOL2_parse_map(map<string,vector<string>>& sections,
 
 
   for (string& line : sections["@<TRIPOS>ATOM"]){
-    
     vector<string> tokens = Split(line);
     if(tokens.size() < 6) continue;
     int ID = stoi(tokens[0]);
