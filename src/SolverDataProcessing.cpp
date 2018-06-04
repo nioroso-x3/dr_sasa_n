@@ -538,7 +538,8 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       IcJ.resize(ColL.size()*LineL.size(),0.0);
       JcI.resize(ColL.size()*LineL.size(),0.0);
       
-      
+      uint32 lmT = LineL.size();
+      uint32 lmT_res = LineLres.size();
       uint32 lm = ColL.size();
       uint32 lm_res = ColLres.size();
 
@@ -559,7 +560,9 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
                 uint32 col_res = ColMres[rID];                 //column of current residue 
                 uint32 line_res = LineMres[pdb[pos].rsID()];   //line of current residue
                 uint64 idxA = col + line * lm;
+                uint64 idxA_t = line + col * lmT;
                 uint64 idxR = col_res + line_res * lm_res;
+                uint64 idxR_t = line_res + col_res * lmT_res;
                 if(std::isnan(IcJ[idxA])) IcJ[idxA] = 0.0;
                 if(std::isnan(IcJres[idxR])) IcJres[idxR] = 0.0;              
                 IcJ[idxA] += atom.ov_norm_area[r];  //sum area to atom matrix
@@ -584,11 +587,13 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
                 uint32 col_res = ColMres[pdb[pos].rsID()];
                 uint32 line_res = LineMres[rID];
                 uint64 idxA = col + line * lm;
+                uint64 idxA_t = line + col * lmT;
                 uint64 idxR = col_res + line_res * lm_res;
-                if(std::isnan(JcI[idxA])) JcI[idxA] = 0.0;
-                if(std::isnan(JcIres[idxR])) JcIres[idxR] = 0.0;              
-                JcI[idxA] += atom.ov_norm_area[r];
-                JcIres[idxR] += atom.ov_norm_area[r];
+                uint64 idxR_t = line_res + col_res * lmT_res;
+                if(std::isnan(JcI[idxA_t])) JcI[idxA_t] = 0.0;
+                if(std::isnan(JcIres[idxR_t])) JcIres[idxR_t] = 0.0;              
+                JcI[idxA_t] += atom.ov_norm_area[r];
+                JcIres[idxR_t] += atom.ov_norm_area[r];
                 objB_bsa += atom.ov_norm_area[r];
               }
             }
@@ -613,31 +618,39 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       ofstream AcBfile(AcB.str());
       ofstream BcAfile(BcA.str());
 
-      AcBfile << objA << "<-" << objB <<"/SUM-v" << "\t"; //dSASA B causes to A
-      BcAfile << objA << "->" << objB << "/SUM->" <<"\t"; //dSASA A causes to B
+      AcBfile << objA << "<-" << objB << "\t"; //dSASA B causes to A
       
       for (uint s = 0; s < ColL.size(); ++s) {
-
           AcBfile << ColL[s] << "/" << pdb[oriIDX[ColL[s]]].MOL_TYPE << "/" << pdb[oriIDX[ColL[s]]].ATOM_TYPE << "\t";
-          BcAfile << ColL[s] << "/" << pdb[oriIDX[ColL[s]]].MOL_TYPE << "/" << pdb[oriIDX[ColL[s]]].ATOM_TYPE << "\t";
       }
       AcBfile << std::endl;
-      BcAfile << std::endl;
       for (uint32 l = 0; l < LineL.size(); ++l){
           AcBfile << LineL[l] << "/" << pdb[oriIDX[LineL[l]]].MOL_TYPE << "/" << pdb[oriIDX[LineL[l]]].ATOM_TYPE << "\t";
-          BcAfile << LineL[l] << "/" << pdb[oriIDX[LineL[l]]].MOL_TYPE << "/" << pdb[oriIDX[LineL[l]]].ATOM_TYPE << "\t";
 
         for (uint32 c = 0; c < ColL.size(); ++c){
           AcBfile << IcJ[c + l * ColL.size()] << "\t";
-          BcAfile << JcI[c + l * ColL.size()] << "\t";
         }
         AcBfile << std::endl;
-        BcAfile << std::endl;
       }
       AcBfile.close();
+    
+      //BcA file    
+      BcAfile << objA << "->" << objB <<"\t"; //dSASA A causes to B,transposed
+      for (uint s = 0; s < LineL.size(); ++s){ 
+        BcAfile << LineL[s] << "/" << pdb[oriIDX[LineL[s]]].MOL_TYPE << "/" << pdb[oriIDX[LineL[s]]].ATOM_TYPE << "\t";
+      }
+      BcAfile << std::endl;
+      for (uint32 l = 0; l < ColL.size(); ++l){
+          BcAfile << ColL[l] << "/" << pdb[oriIDX[ColL[l]]].MOL_TYPE << "/" << pdb[oriIDX[ColL[l]]].ATOM_TYPE << "\t";
+        for (uint32 c = 0; c < LineL.size(); ++c){
+          BcAfile << JcI[c + l * LineL.size()] << "\t";
+        }
+        BcAfile << std::endl;
+      }
       BcAfile.close();
-
+         
       //residuefiles
+     
       stringstream AcBres;                //dSASA in A caused by B outputfilename
       AcBres << output << "." <<objA << "_vs_" << objB << ".by_res.tsv";
       stringstream BcAres;                //dSASA in B caused by A outputfilename
@@ -645,25 +658,34 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       ofstream AcBfileres(AcBres.str());
       ofstream BcAfileres(BcAres.str());
 
-      AcBfileres << objA << "<-" << objB << "/SUM-v"<< "\t"; //dSASA B causes to A
-      BcAfileres << objA << "->" << objB <<"/SUM->" <<"\t"; //dSASA A causes to B
+      AcBfileres << objA << "<-" << objB << "\t"; //dSASA B causes to A
       for (auto s : ColLres) {
         AcBfileres << s << "\t";
-        BcAfileres << s << "\t";
       }
       AcBfileres << std::endl;
-      BcAfileres << std::endl;
       for (uint32 l = 0; l < LineLres.size(); ++l){
         AcBfileres << LineLres[l] << "\t";
-        BcAfileres << LineLres[l] << "\t";
         for (uint32 c = 0; c < ColLres.size(); ++c){
           AcBfileres << IcJres[c + l * ColLres.size()] << "\t";
-          BcAfileres << JcIres[c + l * ColLres.size()] << "\t";
         }
         AcBfileres << std::endl;
-        BcAfileres << std::endl;
       }
       AcBfileres.close();
+
+      //BcA file
+      
+      BcAfileres << objA << "->" << objB << "\t"; //dSASA A causes to B, transposed
+      for (auto s : LineLres) {    
+        BcAfileres << s << "\t";
+      }
+      BcAfileres << std::endl;
+      for (uint32 l = 0; l < ColLres.size(); ++l){
+        BcAfileres << ColLres[l] << "\t";
+        for (uint32 c = 0; c < LineLres.size(); ++c){
+          BcAfileres << JcIres[c + l * LineLres.size()] << "\t";
+        }
+        BcAfileres << std::endl;
+      }
       BcAfileres.close();
       //log to stdout
       if(mode == 0){
