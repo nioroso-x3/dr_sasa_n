@@ -635,7 +635,7 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       AcBfile.close();
     
       //BcA file    
-      BcAfile << objA << "->" << objB <<"\t"; //dSASA A causes to B,transposed
+      BcAfile << objB << "<-" << objA <<"\t"; //dSASA A causes to B,transposed
       for (uint s = 0; s < LineL.size(); ++s){ 
         BcAfile << LineL[s] << "/" << pdb[oriIDX[LineL[s]]].MOL_TYPE << "/" << pdb[oriIDX[LineL[s]]].ATOM_TYPE << "\t";
       }
@@ -674,7 +674,7 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
 
       //BcA file
       
-      BcAfileres << objA << "->" << objB << "\t"; //dSASA A causes to B, transposed
+      BcAfileres << objB << "<-" << objA << "\t"; //dSASA A causes to B, transposed
       for (auto s : LineLres) {    
         BcAfileres << s << "\t";
       }
