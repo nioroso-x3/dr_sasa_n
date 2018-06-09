@@ -47,7 +47,7 @@ EXAMPLE:
 ```
   ./dr_sasa -m 3 -i 4ins.pdb -chain ABCD
 ```
- -Atom contact surface mode: (mode -1)  
+ -Atom contact surface mode: (mode 4)  
 Calculates the contact surface between all the chains of a defined object, or if no chains are defined, between different molecular types.
 Outpus interaction tables.  
 EXAMPLE:
