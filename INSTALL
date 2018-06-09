@@ -3,14 +3,14 @@ $ mkdir build
 $ cd build
 $ cmake ..
 $ make
-$ cp dr_sasa /usr/local/bin
+$ sudo cp dr_sasa /usr/local/bin
 
 #Mac OS, single core
 $ mkdir build
 $ cd build
 $ cmake ../
 $ make
-$ cp dr_sasa /usr/local/bin
+$ sudo cp dr_sasa /usr/local/bin
 
 #Mac OS, multicore
 #Install a C++ compiler with an OpenMP implementation. In this example we will use Homebrew
@@ -22,7 +22,8 @@ $ CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ \
   -Wl,-rpath,/usr/local/opt/llvm/lib" \
 $ cmake ../
 $ make
-$ cp dr_sasa /usr/local/bin
+$ sudo cp dr_sasa /usr/local/bin
 
 #Windows
 Use binary release.
+Alternatively you can use the linux instructions in a Cygwin environment or in Ubuntu for Windows.
