@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
       }
     }
     string input = inputs[0];
-    string output = inputs[0]+".asa";
+    string output = inputs[0]+".asa.pdb";
     string splitasa = inputs[0]+".atmasa";
     if (mode == 0){
       if(outs >= 1) output = outputs[0];
@@ -370,7 +370,7 @@ int main(int argc, char* argv[])
     string output1 = vsinput+".datmasa";
     string output2 = vsinput+".overlaps";
     string output3 = input;
-    string output4 = input+".dsasa";
+    string output4 = input+".dsasa.pdb";
     VDWcontainer rad(vdwfile);
     rad.GenPoints();
     auto pdb = PDBparser(input,types,keepunknown);
@@ -433,7 +433,7 @@ int main(int argc, char* argv[])
     string output1 = vsinput+".datmasa";
     string output2 = vsinput+".overlaps";
     string output3 = input;
-    string output4 = input+".dsasa";
+    string output4 = input+".dsasa.pdb";
     VDWcontainer rad(vdwfile);
     rad.GenPoints();
     auto pdb = PDBparser(input,types,keepunknown);
