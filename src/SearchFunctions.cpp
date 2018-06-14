@@ -168,3 +168,17 @@ ReadTabSeparatedFile(string fname){
   }
   return result;
 }
+
+vector<vector<string>>
+ReadTabSeparatedString(string data){
+  //cout << fname << "\n";
+  istringstream file(data);
+  string   line;
+  vector<vector<string>> result;
+  while(getline(file, line))
+  {
+    vector<string> thisline = LineSplitter(line,'\t');
+    result.push_back(thisline);
+  }
+  return result;
+}

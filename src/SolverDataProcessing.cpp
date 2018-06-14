@@ -2185,18 +2185,21 @@ PrintSplitAsaAtom(vector<atom_struct>& pdb,
     else if (atom->MOL_TYPE == "LIGAND"){
       if(std::isnan(total_ASA)) total_ASA = 0.0;
       total_ASA += value;
-      if(atom->ELEMENT == "C")
+      bool polar = atom->POLAR == 1;
+      
+
+      if(polar)
       {
-        if(std::isnan(lig_ASA)) lig_ASA = 0.0;
-        if(std::isnan(lig_hyd_ASA)) lig_hyd_ASA = 0.0;
-        lig_ASA += value;
-        lig_hyd_ASA += value;
-      }
-      else{
         if(std::isnan(lig_ASA)) lig_ASA = 0.0;
         if(std::isnan(lig_polar_ASA)) lig_polar_ASA = 0.0;
         lig_ASA += value;
         lig_polar_ASA += value;
+      }
+      else{
+        if(std::isnan(lig_ASA)) lig_ASA = 0.0;
+        if(std::isnan(lig_hyd_ASA)) lig_hyd_ASA = 0.0;
+        lig_ASA += value;
+        lig_hyd_ASA += value;
       }
     }
     outf << atom->NAME << "\t";

@@ -30,6 +30,10 @@ GetTypeFromRESI(string,
 vector<vector<string>>
 ReadTabSeparatedFile(string);
 
+vector<vector<string>>
+ReadTabSeparatedString(string);
+
+
 vector<string> 
 LineSplitter(string,
              char);

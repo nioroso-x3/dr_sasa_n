@@ -67,6 +67,7 @@ public:
   float BSA_ENERGY;
   bool TERMINAL;
   bool HETATM;
+  int POLAR;
   string DTYPE;
   vector<uint32> BONDED;
   vector<uint32> DD_INTERACTING;

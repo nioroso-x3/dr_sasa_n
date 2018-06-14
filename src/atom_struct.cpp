@@ -53,6 +53,7 @@ atom_struct::atom_struct(uint32          id,
   BSA_ENERGY = 0;
   EF_INT_NUM = 0;
   TERMINAL = false;
+  POLAR = 0;
 }
 
 atom_struct&
@@ -111,6 +112,8 @@ atom_struct::operator=(const atom_struct& other){
   EF_INT_NUM = other.EF_INT_NUM;
   HETATM = other.HETATM;
   DTYPE = other.DTYPE;
+  POLAR = other.POLAR;
+
   return *this;
 }
 
@@ -168,6 +171,8 @@ atom_struct::atom_struct(const atom_struct& other){
   EF_INT_NUM = other.EF_INT_NUM;
   HETATM = other.HETATM;
   DTYPE= other.DTYPE;
+  POLAR= other.POLAR;
+
 }
 
 string

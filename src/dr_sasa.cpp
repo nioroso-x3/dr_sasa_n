@@ -51,6 +51,26 @@ string help = "\x1b[1mUSAGE:\x1b[0m\n"
 
 
 ;
+#ifdef __unix__ 
+char sep = '/';
+#elif _WIN32
+char sep = '\\';
+#else
+char sep = '/';
+#endif
+
+string getfname(std::string filePath, bool withExtension = false, char seperator = sep)
+{
+  size_t dotPos = filePath.rfind('.');
+  size_t sepPos = filePath.rfind(seperator);
+  if ((dotPos == string::npos) && (sepPos == string::npos))
+    return filePath;
+  size_t begin = (sepPos == string::npos ? 0 : sepPos+1);
+  string tmp = filePath.substr(begin,filePath.size()-1);
+  dotPos = tmp.rfind('.');
+  string basename =  tmp.substr(0, dotPos == string::npos ? tmp.size()-1 : dotPos);
+  return basename;
+}
 
 vector<char>
 float2bool(vector<float> mtrx){
@@ -255,8 +275,8 @@ int main(int argc, char* argv[])
       }
     }
     string input = inputs[0];
-    string output = inputs[0]+".asa.pdb";
-    string splitasa = inputs[0]+".atmasa";
+    string output = getfname(input)+".asa.pdb";
+    string splitasa = getfname(input)+".atmasa";
     if (mode == 0){
       if(outs >= 1) output = outputs[0];
       if(outs >= 2) splitasa = outputs[1];
@@ -316,7 +336,7 @@ int main(int argc, char* argv[])
       cerr << "Please define a single object.\n";
       return 0;
     }
-    string input = inputs[0];
+    string input = getfname(inputs[0]);
     string output1 = outputs[0];
     string output2 = outputs[1];
 
@@ -346,7 +366,7 @@ int main(int argc, char* argv[])
       cout << "#Manual chain interaction solver selected.\n";
     } 
     stringstream stdinput;
-    stdinput << inputs[0];
+    stdinput << getfname(inputs[0]);
     if(chain_sep.size() == 1){
       stdinput << ".";
       for (uint32 i = 0; i < chain_sep.size(); ++i){
@@ -369,8 +389,8 @@ int main(int argc, char* argv[])
     string input = inputs[0];
     string output1 = vsinput+".datmasa";
     string output2 = vsinput+".overlaps";
-    string output3 = input;
-    string output4 = input+".dsasa.pdb";
+    string output3 = getfname(input);
+    string output4 = getfname(input)+".dsasa.pdb";
     VDWcontainer rad(vdwfile);
     rad.GenPoints();
     auto pdb = PDBparser(input,types,keepunknown);
@@ -409,7 +429,7 @@ int main(int argc, char* argv[])
       cout << "#Automatic chain contact solver selected.\n";
     } 
     stringstream stdinput;
-    stdinput << inputs[0];
+    stdinput << getfname(inputs[0]);
     if(chain_sep.size() == 1){
       stdinput << ".";
       for (uint32 i = 0; i < chain_sep.size(); ++i){
@@ -432,8 +452,8 @@ int main(int argc, char* argv[])
     string input = inputs[0];
     string output1 = vsinput+".datmasa";
     string output2 = vsinput+".overlaps";
-    string output3 = input;
-    string output4 = input+".dsasa.pdb";
+    string output3 = getfname(input);
+    string output4 = getfname(input)+".dsasa.pdb";
     VDWcontainer rad(vdwfile);
     rad.GenPoints();
     auto pdb = PDBparser(input,types,keepunknown);
@@ -463,7 +483,7 @@ int main(int argc, char* argv[])
       return 0;
     }
     stringstream stdinput;
-    stdinput << inputs[0] << ".internal.";
+    stdinput << getfname(inputs[0]) << ".internal.";
     if (chain_sep.size() == 1){
       for (auto c : chain_sep[0]){
         stdinput << c;
@@ -500,7 +520,7 @@ int main(int argc, char* argv[])
       return 0;
     }
     stringstream stdinput;
-    stdinput << inputs[0] << ".internal.";
+    stdinput << getfname(inputs[0]) << ".internal.";
     if (chain_sep.size() == 1){
       for (auto c : chain_sep[0]){
         stdinput << c;
