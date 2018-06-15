@@ -38,19 +38,18 @@ string help = "\x1b[1mUSAGE:\x1b[0m\n"
 "Outpus an interaction table and overlap table.\n"
 "EXAMPLE:\n"
 "  ./dr_sasa -m 3 -i 4ins.pdb -chain ABCD\n\n"
-" \x1b[1m*Atom contact surface mode: (mode 44441b[0m\n"
+" \x1b[1m*Atom contact surface mode: (mode 4)\x1b[0m\n"
 "Calculates the contact surface between all the chains of a defined object, or if no chains are defined, between different molecular types.\n"
 "Outpus interaction tables.\n"
 "EXAMPLE:\n"
 "  ./dr_sasa -m 4 -i 1bl0.pdb\n\n"
-" *Switches\n\n"
-"-nomatrix\tswitch will disable matrix output.\n\n"
-"-r float\tswitch will set the water probe radius in Angstroms. Default value is 1.4. Setting to 0 is equal to using the molecular surface.\n\n"
-"-v\tAllows the user to define their own VdW radii for PDBs or MOL2 files. Examples are distributed under the utils folder.\n\n"
-"-no_atmasa_autosort\tSpecial setting for atmasa output files. Disables the autosorter, useful for malformed mol2 or pdbs with atoms with missing chain identifers. \n\n"
-
-
+" \x1b[1m*Switches:\x1b[0m\n\n"
+"  -nomatrix\tswitch will disable matrix output.\n\n"
+"  -r float\tswitch will set the water probe radius in Angstroms. Default value is 1.4. Setting to 0 is equal to using the molecular surface.\n\n"
+"  -v\tAllows the user to define their own VdW radii for PDBs or MOL2 files. Examples are distributed under the utils folder.\n\n"
+"  -no_atmasa_autosort\tSpecial setting for atmasa output files. Disables the autosorter, useful for malformed mol2 or pdbs with atoms with missing chain identifers. \n\n"
 ;
+
 #ifdef __unix__ 
 char sep = '/';
 #elif _WIN32
