@@ -990,17 +990,17 @@ MOL2_parse_map(map<string,vector<string>>& sections,
     string icode = "";
     //cout << line << "\n";
     if(tokens.size() >= 6 || line.size() >= 56){ 
-      try{
+/*      try{
         int resi_ = stoi(line.substr(52,4));
         resi = resi_;
-      }catch(exception e){}
+      }catch(exception e){}*/
       if (resi == 0){
        resi = stoi(tokens[6]);
       }
      
       if(tokens.size() > 7 || line.size() >= 69){
         string resn_;
-        if(line.size() >= 69){ 
+/*        if(line.size() >= 69){ 
           try{
             resn_= line.substr(58,9);
           }
@@ -1008,7 +1008,7 @@ MOL2_parse_map(map<string,vector<string>>& sections,
             resn_ = tokens[7];
           }
         }
-        else resn_ = tokens[7];
+        else*/ resn_ = tokens[7];
         resn_.erase(resn_.find_last_not_of(" \n\r\t")+1);
         resn_ = resn_.substr(0,3);
         for(char c : resn_){

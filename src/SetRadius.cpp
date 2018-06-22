@@ -411,7 +411,7 @@ set_to = "Zr";
           if (atom.VDW != 0)cerr << "_FIXED ";
           else cerr << " ";
           cerr <<atom.STRUCTURE << "|" << atom.NAME << "|" << atom.RESN <<
-                  "|" << atom.RESI << "|" <<atom.CHAIN << atom.iCODE<< "|" << atom.ELEMENT<< "|";
+                  "|" << atom.RESI << "|" <<atom.CHAIN << atom.iCODE<< "|" << atom.ELEMENT<< "|\n";
         }
       }
     }
