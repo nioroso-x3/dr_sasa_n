@@ -11,6 +11,7 @@ VDWcontainer::VDWcontainer(string vdwfile){
   load_data(fpdb);
   load_data(fmol2);
   if(vdwfile != ""){
+    cerr << "#Loading external VdW radius file.\n";
     try{
       vector<vector<string>> f = ReadTabSeparatedFile(vdwfile);
       load_data(f);

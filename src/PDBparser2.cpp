@@ -933,8 +933,14 @@ MOL2parser(string fname,
   result.insert(result.end(),temp.begin(),temp.end());
   GetMolType(result);
   GetAtomType(typefname,result,KeepUnknown);
+  map<int,string> resi2chain;
   for(auto& atom : result){ 
     atom.STRUCTURE = GetBasename(fname);
+    if(atom.CHAIN != "_")
+    resi2chain[atom.RESI] = atom.CHAIN;
+  }
+  for(auto& atom : result){
+    if(atom.CHAIN == "_") atom.CHAIN = resi2chain.at(atom.RESI);
   }
   return result;
 }
@@ -1117,5 +1123,6 @@ MOL2_parse_map(map<string,vector<string>>& sections,
       }
     }
     CHAINn += bonded_sets.size();
+   
   }
 }
