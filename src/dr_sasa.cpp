@@ -11,7 +11,8 @@
 #include "NonEffective.h"
 #include "SearchFunctions.h"
 //#include "ShapeComplementarity.h"
-
+string version ="0.4";
+string authors ="Ribeiro J., Ríos-Vera C., Melo F., Schüller A.";
 string help = "\x1b[1mUSAGE:\x1b[0m\n"
 " \x1b[1m*Simple SASA solver: (mode 0, default)\x1b[0m\n"
 "Calculates SASA and outputs a NACCESS PDB like file and a second file with categorized atoms.\n"
@@ -226,6 +227,8 @@ int main(int argc, char* argv[])
       }
       if(c == "-h" || c == "--help" || argc == 1){
         cout << help;
+        cout << "\x1b[1mVersion\x1b[0m: " << version << "\n";
+        cout << "\x1b[1mAuthors\x1b[0m: " << authors << "\n";
         return 0;
       }
       //disable matrix output

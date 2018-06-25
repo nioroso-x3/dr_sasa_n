@@ -5,22 +5,22 @@ $ cmake ..
 $ make
 $ sudo cp dr_sasa /usr/local/bin
 
-#Mac OS, single core
+#Mac OS, single core, OSX 10.9+
 $ mkdir build
 $ cd build
 $ cmake ../
 $ make
 $ sudo cp dr_sasa /usr/local/bin
 
-#Mac OS, multicore
-#Install a C++ compiler with an OpenMP implementation. In this example we will use Homebrew
+#Mac OS, multicore, OSX 10.9+
+#Install a C++ compiler with an OpenMP implementation. In this example we will use LLVM installed through Homebrew
 $ brew install llvm
 $ mkdir build
 $ cd build
 $ CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ \ 
   LDFLAGS="-L/usr/local/opt/llvm/lib \
   -Wl,-rpath,/usr/local/opt/llvm/lib" \
-$ cmake ../
+  cmake ../
 $ make
 $ sudo cp dr_sasa /usr/local/bin
 
