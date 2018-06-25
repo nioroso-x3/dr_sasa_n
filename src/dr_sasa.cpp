@@ -231,6 +231,9 @@ int main(int argc, char* argv[])
         cout << "\x1b[1mAuthors\x1b[0m: " << authors << "\n";
         return 0;
       }
+      if(c == "--version"){
+        cout << "Version " << version << "\n";
+      }
       //disable matrix output
       if (c == "-nomatrix") mtrx = false;
       if (c == "-usegpu"){
@@ -256,7 +259,7 @@ int main(int argc, char* argv[])
     cerr << "No input.\n";
     return -1;
   }
-
+  cout << "#dr_sasa v"<< version <<"\n";
   //set atmasa mode
   int atmasa_sasa = 0;
   int atmasa_bsa = 1;

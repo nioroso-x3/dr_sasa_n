@@ -381,7 +381,7 @@ set_to = "Zr";
         set_unknown(atom);
         if (atom.VDW != 0.0) cerr << "_FIXED ";
         else cerr << " ";
-        cerr  <<atom.NAME <<"|" <<atom.RESN << "|" <<atom.RESI<< "|" << atom.CHAIN << "|" << atom.CHARGE << "|" << atom.ELEMENT << "\n";
+        cerr  <<atom.NAME <<"|" <<atom.RESN << "|" <<atom.RESI<< "|" << atom.CHAIN << "|" << atom.CHARGE << "|" << atom.ELEMENT << "|" << atom.VDW << "\n";
  
       }
     }
@@ -399,7 +399,7 @@ set_to = "Zr";
           if(atom.VDW != 0) cerr << "_FIXED ";
           else cerr << " ";
           cerr <<atom.STRUCTURE << "|" << atom.NAME << "|" << atom.RESN <<
-           "|" << atom.RESI << "|" <<atom.CHAIN << atom.iCODE<< "|" << atom.ELEMENT<< "\n";
+           "|" << atom.RESI << "|" <<atom.CHAIN << atom.iCODE<< "|" << atom.ELEMENT<< "|" << atom.VDW << "\n";
         }
       }
       else {
@@ -412,7 +412,7 @@ set_to = "Zr";
           if (atom.VDW != 0)cerr << "_FIXED ";
           else cerr << " ";
           cerr <<atom.STRUCTURE << "|" << atom.NAME << "|" << atom.RESN <<
-                  "|" << atom.RESI << "|" <<atom.CHAIN << atom.iCODE<< "|" << atom.ELEMENT<< "|\n";
+                  "|" << atom.RESI << "|" <<atom.CHAIN << atom.iCODE<< "|" << atom.ELEMENT<< "|" << atom.VDW << "\n";
         }
       }
     }
