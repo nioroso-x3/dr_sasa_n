@@ -233,6 +233,7 @@ int main(int argc, char* argv[])
       }
       if(c == "--version"){
         cout << "Version " << version << "\n";
+        return 0;
       }
       //disable matrix output
       if (c == "-nomatrix") mtrx = false;
