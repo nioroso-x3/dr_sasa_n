@@ -29,8 +29,8 @@ string help = "\x1b[1mUSAGE:\x1b[0m\n"
 "EXAMPLE:\n"
 "  ./dr_sasa -m 1 -i 4ins.pdb -chain AB -chain CD\n\n"
 "  ./dr_sasa -m 1 -i 1bl0.pdb\n\n"
-" \x1b[1m*Aminoacid dSASA mode: (mode 2)\x1b[0m\n"
-"Calculates the delta SASA of all aminoacids inside a single object. (intramolecular contacts)\n"
+" \x1b[1m*Residue dSASA mode: (mode 2)\x1b[0m\n"
+"Calculates the delta SASA of all residues inside a single object. (intramolecular contacts)\n"
 "Outpus an interaction table and overlap table.\n"
 "EXAMPLE:\n"
 "  ./dr_sasa -m 2 -i 4ins.pdb -chain ABCD\n\n"
@@ -482,7 +482,7 @@ int main(int argc, char* argv[])
   }
 
 
-//dSASA inside aminoacids mode
+//dSASA inside residues mode
   if(mode == 2){
     if (chain_sep.size() > 1){
       cerr << "Please define a single object.\n";
