@@ -28,7 +28,7 @@ Calculates the delta SASA (change in Solvent Accessible Surface Area) or BSA in 
 Objects are currently defined only by their chain IDs.
 Outputs an interaction table, all surface overlaps, and a delta SASA matrix for each
 permutation of defined objects.
-If no chains are selected the interactions will be defined by molecular type (ie. protein,DNA,RNA,ligand).
+If no chains are selected the interactions will be defined by molecular type (ie. protein,DNA,RNA,ligand).  
 EXAMPLE:
 ###
 ```
