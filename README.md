@@ -37,7 +37,7 @@ EXAMPLE:
   ./dr_sasa -m 1 -i 1bl0.pdb
 ```
 ##### -Residue dSASA mode: (mode 2)  
-Calculates the delta SASA of all residues (ie. aminoacis, nucleotides or ligands) inside a single object. (intramolecular contacts)
+Calculates the delta SASA of all residues (ie. aminoacis, nucleotides or ligands) inside a single object (intramolecular contacts).
 Outputs an interaction table and an overlap table.  
 EXAMPLE:
 ###
