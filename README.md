@@ -23,12 +23,12 @@ EXAMPLE:
 ```
   ./dr_sasa -m 0 -i 4ins.pdb -o 4ins.asa
 ```
-###### -Delta SASA by chain ID or automatic: (mode 1)  
+##### -Delta SASA by chain ID or automatic: (mode 1)  
 Calculates the delta SASA (change in Solvent Accessible Surface Area) or BSA in various objects contained in a single pdb or mol2 file.
 Objects are currently defined only by their chain IDs.
 Outputs an interaction table, all surface overlaps, and a delta SASA matrix for each
 permutation of defined objects.
-If no chains are selected the interactions will be defined by molecular type (ie. protein,DNA,RNA,ligand).
+If no chains are selected the interactions will be defined by molecular type (ie. protein,DNA,RNA,ligand).  
 EXAMPLE:
 ###
 ```
@@ -36,15 +36,15 @@ EXAMPLE:
 
   ./dr_sasa -m 1 -i 1bl0.pdb
 ```
-###### -Residue dSASA mode: (mode 2)  
-Calculates the delta SASA of all residues (ie. aminoacis, nucleotides or ligands) inside a single object. (intramolecular contacts)
+##### -Residue dSASA mode: (mode 2)  
+Calculates the delta SASA of all residues (ie. aminoacis, nucleotides or ligands) inside a single object (intramolecular contacts).
 Outputs an interaction table and an overlap table.  
 EXAMPLE:
 ###
 ```
   ./dr_sasa -m 2 -i 4ins.pdb -chain ABCD
 ```
-###### -Atom dSASA mode: (mode 3)  
+##### -Atom dSASA mode: (mode 3)  
 Calculates the delta SASA of all atoms inside a single object (ie. intramolecular contacts).
 Outputs an interaction table and an overlap table.  
 EXAMPLE:
@@ -52,7 +52,7 @@ EXAMPLE:
 ```
   ./dr_sasa -m 3 -i 4ins.pdb -chain ABCD
 ```
-###### -Atom contact surface mode: (mode 4)  
+##### -Atom contact surface mode: (mode 4)  
 Calculates the contact surface between all the chains of a defined object or, if no chains are defined, between different molecular types.
 Outputs interaction tables.  
 EXAMPLE:
