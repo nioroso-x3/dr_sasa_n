@@ -82,3 +82,6 @@ $ make
 ```
 
 Then copy the binary to your local or system binaries folder.
+
+### Graphing Data
+Use the script in the https://github.com/crosvera/contactplot repository.
