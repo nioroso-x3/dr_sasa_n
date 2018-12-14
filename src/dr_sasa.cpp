@@ -200,6 +200,7 @@ int main(int argc, char* argv[])
   bool keepunknown = true;
   int mtrxtype = 0;
   bool atmsrt = true;
+  bool reorder = false;
   for (uint32 i = 0; i < maxout; ++i){
   #ifdef __WIN32
   outputs.push_back("NUL");
@@ -298,6 +299,10 @@ int main(int argc, char* argv[])
       if (c == "-no_atmasa_autosort"){
         atmsrt = false;
       }
+      if (c == "-force_reorder"){
+        reorder = true;
+      }
+
 
     }
     catch(exception e){
@@ -453,6 +458,10 @@ int main(int argc, char* argv[])
     //for(auto item : pdb) cout << item.print() << "\n";
     //
     if(chain_sep.size() >= 1) ChainSelector(chain_sep,pdb);
+    if(reorder){
+      pdb = ReorderPDB(pdb);
+    }
+  
 
     rad.SetRadius(pdb, probe);
 

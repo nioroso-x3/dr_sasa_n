@@ -57,6 +57,18 @@ GetAtoms(string               resn,
    return result;
 }
 
+vector<atom_struct>
+ReorderPDB(vector<atom_struct>& pdb){
+  auto orgpdb = OrganizePDB(pdb);
+  vector<atom_struct> result;
+  for(auto& chain : orgpdb)
+    for(auto& res : chain)
+      for(auto& atom : res){
+        result.push_back(*atom);
+      }
+  return result;
+}
+
 vector<vector<vector<atom_struct*>>>
 OrganizePDB(vector<atom_struct>& pdb){
   vector<vector<vector<atom_struct*>>> result;

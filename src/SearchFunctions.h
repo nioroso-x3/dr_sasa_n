@@ -8,6 +8,9 @@ GetAtoms(string,
 vector<vector<vector<atom_struct*>>>
 OrganizePDB(vector<atom_struct>&);
 
+vector<atom_struct>
+ReorderPDB(vector<atom_struct>&);
+
 /*vector<atom_struct*>
 GetAtomsFromRESI(int,
 				 vector<residue_struct>&);*/
