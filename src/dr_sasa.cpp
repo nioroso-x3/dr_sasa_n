@@ -90,6 +90,7 @@ string help_WIN =
 "  -r float\tswitch will set the water probe radius in Angstroms. Default value is 1.4. Setting to 0 is equal to using the molecular surface.\n\n"
 "  -v\tAllows the user to define their own VdW radii for PDBs or MOL2 files. Examples are distributed under the utils folder.\n\n"
 "  -no_atmasa_autosort\tSpecial setting for atmasa output files. Disables the autosorter, useful for malformed mol2 or pdbs with atoms with missing chain identifers. \n\n"
+"  -force_reorder\tSorts the input file by chain name, residue number and atom name."
 ;
 
 #ifdef __unix__ 
@@ -380,6 +381,10 @@ int main(int argc, char* argv[])
     auto pdb = PDBparser(input,"",keepunknown);
     if(chain_sep.size() == 1)
       ChainSelector(chain_sep,pdb);
+    if(reorder){
+      pdb = ReorderPDB(pdb);
+      cout << "#Reordering PDB\n";
+    }
     rad.SetRadius(pdb, probe);
     SolveInteractions(pdb,0);
     SimpleSolverCL(pdb,rad.Points,cl_mode);
@@ -404,6 +409,10 @@ int main(int argc, char* argv[])
     rad.GenPoints();
     auto pdb = PDBparser(input,types,keepunknown);
     ChainSelector(chain_sep,pdb);
+    if(reorder){
+      pdb = ReorderPDB(pdb);
+      cout << "#Reordering PDB\n";
+    }
     rad.SetRadius(pdb, probe);
     SolveInteractions(pdb,0);
     SimpleSolverCL(pdb,rad.Points,0);
@@ -460,6 +469,7 @@ int main(int argc, char* argv[])
     if(chain_sep.size() >= 1) ChainSelector(chain_sep,pdb);
     if(reorder){
       pdb = ReorderPDB(pdb);
+      cout << "#Reordering PDB\n";
     }
   
 
@@ -525,7 +535,10 @@ int main(int argc, char* argv[])
     //for(auto item : pdb) cout << item.print() << "\n";
     //
     if(chain_sep.size() >= 1) ChainSelector(chain_sep,pdb);
-
+    if(reorder){
+      pdb = ReorderPDB(pdb);
+      cout << "#Reordering PDB\n";
+    }
     rad.SetRadius(pdb, probe);
     SolveInteractions(pdb,Imode);
     DecoupledSolver(pdb,rad.Points);
@@ -564,6 +577,10 @@ int main(int argc, char* argv[])
     rad.GenPoints();
     auto pdb = PDBparser(input,types,keepunknown);
     if (chain_sep.size() == 1) ChainSelector(chain_sep,pdb);
+    if(reorder){
+      pdb = ReorderPDB(pdb);
+      cout << "#Reordering PDB\n";
+    }
 
     rad.SetRadius(pdb, probe);
 
@@ -603,6 +620,10 @@ int main(int argc, char* argv[])
     if (chain_sep.size() == 1) ChainSelector(chain_sep,pdb);
 
     rad.SetRadius(pdb, probe);
+    if(reorder){
+      pdb = ReorderPDB(pdb);
+      cout << "#Reordering PDB\n";
+    }
 
     Generic_Solver(pdb,rad.Points,chain_sep,3,cl_mode);
 
