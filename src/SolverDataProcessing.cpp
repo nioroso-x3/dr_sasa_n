@@ -137,6 +137,8 @@ GenerateInterBSAMatrix(vector<atom_struct>&                  pdb,
 
       vector<string> ColLres;
       vector<string> LineLres;
+      set<string>    tmpColLres;
+      set<string>    tmpLineLres;
       map<string,uint32> ColMres;
       map<string,uint32> LineMres;
       vector<float> IcJres; //J causes to I
@@ -149,19 +151,25 @@ GenerateInterBSAMatrix(vector<atom_struct>&                  pdb,
           ColL.push_back(aID);
           ColL_type.push_back(atom.ATOM_TYPE);
           ColM[aID] = ColL.size()-1;
-          ColLres.push_back(rID);
+          if(tmpColLres.count(rID) == 0){
+            tmpColLres.insert(rID);
+            ColLres.push_back(rID);
+          }
           //cout << " COL " << aID << " " << ColL.size()-1 << std::endl;
         }
         if(atom.STRUCT_TYPE == objB){
           LineL.push_back(aID);
           LineL_type.push_back(atom.ATOM_TYPE);
           LineM[aID] = LineL.size()-1;
-          LineLres.push_back(rID);
+          if(tmpLineLres.count(rID) == 0){
+            tmpLineLres.insert(rID);
+            LineLres.push_back(rID);
+          }
           //cout << " LIN " << aID << " " << LineL.size()-1 << std::endl;
         }
       }
-      ColLres.erase( unique( ColLres.begin(), ColLres.end() ), ColLres.end() );
-      LineLres.erase( unique( LineLres.begin(), LineLres.end() ), LineLres.end() );
+      //ColLres.erase( unique( ColLres.begin(), ColLres.end() ), ColLres.end() );
+      //LineLres.erase( unique( LineLres.begin(), LineLres.end() ), LineLres.end() );
 
       for (uint32 k = 0; k < ColLres.size();++k) ColMres[ColLres[k]] = k;
       for (uint32 k = 0; k < LineLres.size();++k) LineMres[LineLres[k]] = k;
@@ -287,6 +295,8 @@ GenerateIntraBSAMatrix(vector<atom_struct>& pdb,
   map<string,uint32> ColMres;
   map<string,uint32> LineMres;
   vector<float> mtrx_res; 
+  set<string>    tmpColLres;
+  set<string>    tmpLineLres;
 
   for (auto& atom : pdb){
     string aID = atom.sID();
@@ -294,16 +304,23 @@ GenerateIntraBSAMatrix(vector<atom_struct>& pdb,
     ColL_type.push_back(atom.ATOM_TYPE);
     ColL.push_back(aID);
     ColM[aID] = ColL.size()-1;
-    ColLres.push_back(rID);
+    if(tmpColLres.count(rID) == 0){
+      tmpColLres.insert(rID);
+      ColLres.push_back(rID);
+    }
     //cout << " COL " << aID << " " << ColL.size()-1 << std::endl;
     LineL_type.push_back(atom.ATOM_TYPE);
     LineL.push_back(aID);
     LineM[aID] = LineL.size()-1;
-    LineLres.push_back(rID);
+    if(tmpLineLres.count(rID) == 0){
+      tmpLineLres.insert(rID);
+      LineLres.push_back(rID);
+    }
     //cout << " LIN " << aID << " " << LineL.size()-1 << std::endl;
   }
-  ColLres.erase( unique( ColLres.begin(), ColLres.end() ), ColLres.end() );
-  LineLres.erase( unique( LineLres.begin(), LineLres.end() ), LineLres.end() );
+
+  //ColLres.erase( unique( ColLres.begin(), ColLres.end() ), ColLres.end() );
+  //LineLres.erase( unique( LineLres.begin(), LineLres.end() ), LineLres.end() );
   for (uint32 k = 0; k < ColLres.size();++k) ColMres[ColLres[k]] = k;
   for (uint32 k = 0; k < LineLres.size();++k) LineMres[LineLres[k]] = k;
   
@@ -500,7 +517,8 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
       map<string,uint32> LineMres;
       vector<float> IcJres; //J causes to I
       vector<float> JcIres; //I causes to J
-      
+      set<string> tmpColLres;
+      set<string> tmpLineLres;
       map<string,uint32> oriIDX;
 
       for (uint32 i = 0; i < pdb.size(); ++i){
@@ -512,7 +530,10 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
           ColL.push_back(aID);
           ColL_type.push_back(atom.ATOM_TYPE);
           ColM[aID] = ColL.size()-1;
-          ColLres.push_back(rID);
+          if(tmpColLres.count(rID) == 0){
+            tmpColLres.insert(rID);
+            ColLres.push_back(rID);
+          }
           //cout << atom.print() << std::endl;
           objA_sasa += atom.SASA;
           //cout << " COL " << aID << " " << ColL.size()-1 << std::endl;
@@ -521,13 +542,16 @@ PrintDNA_ProtResultsByAtomMatrix(vector<atom_struct>& pdb,     // pdb struct
           LineL.push_back(aID);
           LineL_type.push_back(atom.ATOM_TYPE);
           LineM[aID] = LineL.size()-1;
-          LineLres.push_back(rID);
+          if (tmpLineLres.count(rID) == 0){
+            tmpLineLres.insert(rID);
+            LineLres.push_back(rID);
+          }
           objB_sasa += atom.SASA ;
           //cout << " LIN " << aID << " " << LineL.size()-1 << std::endl;
         }
       }
-      ColLres.erase( unique( ColLres.begin(), ColLres.end() ), ColLres.end() );
-      LineLres.erase( unique( LineLres.begin(), LineLres.end() ), LineLres.end() );
+      //ColLres.erase( unique( ColLres.begin(), ColLres.end() ), ColLres.end() );
+      //LineLres.erase( unique( LineLres.begin(), LineLres.end() ), LineLres.end() );
 
       for (uint32 k = 0; k < ColLres.size();++k) ColMres[ColLres[k]] = k;
       for (uint32 k = 0; k < LineLres.size();++k) LineMres[LineLres[k]] = k;
