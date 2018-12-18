@@ -52,6 +52,7 @@ string help_UNIX =
 "  -r float\tswitch will set the water probe radius in Angstroms. Default value is 1.4. Setting to 0 is equal to using the molecular surface.\n\n"
 "  -v\tAllows the user to define their own VdW radii for PDBs or MOL2 files. Examples are distributed under the utils folder.\n\n"
 "  -no_atmasa_autosort\tSpecial setting for atmasa output files. Disables the autosorter, useful for malformed mol2 or pdbs with atoms with missing chain identifers. \n\n"
+"  -force_reorder\tSorts the input file by chain name, residue number and atom name.\n\n"
 ;
 string help_WIN = 
 "USAGE:\n"
@@ -90,7 +91,7 @@ string help_WIN =
 "  -r float\tswitch will set the water probe radius in Angstroms. Default value is 1.4. Setting to 0 is equal to using the molecular surface.\n\n"
 "  -v\tAllows the user to define their own VdW radii for PDBs or MOL2 files. Examples are distributed under the utils folder.\n\n"
 "  -no_atmasa_autosort\tSpecial setting for atmasa output files. Disables the autosorter, useful for malformed mol2 or pdbs with atoms with missing chain identifers. \n\n"
-"  -force_reorder\tSorts the input file by chain name, residue number and atom name."
+"  -force_reorder\tSorts the input file by chain name, residue number and atom name.\n\n"
 ;
 
 #ifdef __unix__ 
