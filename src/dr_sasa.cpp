@@ -562,7 +562,7 @@ int main(int argc, char* argv[])
             }
         }
     }
-    // If true, set Imode = 5 to calculate dSASA between these two chains
+    // If true, set Imode = 3 to calculate dSASA between these two chains
     if (proteinChains.size() == 2) {
         Imode = 3;
     }
