@@ -97,9 +97,12 @@ SolveInteractionsALL(vector<atom_struct>&            pdb,
     }else if (mode == 4){
       atom_i.STRUCT_TYPE = atom_i.MOL_TYPE;
       atom_j.STRUCT_TYPE = atom_j.MOL_TYPE;
+    } else if (mode == 5) {
+        atom_i.STRUCT_TYPE = atom_i.CHAIN;
+        atom_j.STRUCT_TYPE = atom_j.CHAIN;
     }
     
-    if(mode == 2 || mode == 3 || mode == 4){
+    if(mode == 2 || mode == 3 || mode == 4 || mode == 5){
       bool samestruct = atom_i.STRUCT_TYPE == atom_j.STRUCT_TYPE;
       
       return samestruct;

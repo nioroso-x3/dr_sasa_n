@@ -11,7 +11,7 @@
 #include "NonEffective.h"
 #include "SearchFunctions.h"
 //#include "ShapeComplementarity.h"
-string version ="0.4";
+string version ="0.5";
 string authors ="Ribeiro J., Ríos-Vera C., Melo F., Schüller A.";
 string authors_ascii ="Ribeiro J., Rios-Vera C., Melo F., Schueller A.";
 
@@ -464,6 +464,23 @@ int main(int argc, char* argv[])
     VDWcontainer rad(vdwfile);
     rad.GenPoints();
     auto pdb = PDBparser(input,types,keepunknown);
+    // Check if we have exactly two protein chains, and the chains do only contain protein atoms
+    set<string> proteinChains;
+    if (chain_sep.size() <= 1) {
+        for (auto atom: pdb) {
+            if (atom.MOL_TYPE == "PROTEIN") {
+                proteinChains.insert(atom.CHAIN);
+            } else {
+                // Abort if non-protein atoms are found
+                proteinChains.clear();
+                break;
+            }
+        }
+    }
+    // If true, set Imode = 5 to calculate dSASA between these two chains
+    if (proteinChains.size() == 2) {
+        Imode = 5;
+    }
     //
     //for(auto item : pdb) cout << item.print() << "\n";
     //
@@ -532,6 +549,23 @@ int main(int argc, char* argv[])
     VDWcontainer rad(vdwfile);
     rad.GenPoints();
     auto pdb = PDBparser(input,types,keepunknown);
+    // Check if we have exactly two protein chains, and the chains do only contain protein atoms
+    set<string> proteinChains;
+    if (chain_sep.size() <= 1) {
+        for (auto atom: pdb) {
+            if (atom.MOL_TYPE == "PROTEIN") {
+                proteinChains.insert(atom.CHAIN);
+            } else {
+                // Abort if non-protein atoms are found
+                proteinChains.clear();
+                break;
+            }
+        }
+    }
+    // If true, set Imode = 5 to calculate dSASA between these two chains
+    if (proteinChains.size() == 2) {
+        Imode = 3;
+    }
     //
     //for(auto item : pdb) cout << item.print() << "\n";
     //
