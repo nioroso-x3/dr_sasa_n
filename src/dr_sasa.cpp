@@ -629,6 +629,50 @@ int main(int argc, char* argv[])
     else PrintDNA_ProtResults(pdb, output2);
     return 0;
   }
+
+
+//dSASA inside residues mode with triplets output
+  if(mode == 21){
+    if (chain_sep.size() > 1){
+      cerr << "Please define a single object.\n";
+      return 0;
+    }
+    stringstream stdinput;
+    stdinput << getfname(inputs[0]) << ".internal.";
+    if (chain_sep.size() == 1){
+      for (auto c : chain_sep[0]){
+        stdinput << c;
+      }
+    }
+    else stdinput << "all";
+    stdinput << ".by_res";
+    string vsinput = stdinput.str();
+    string input = inputs[0];
+    string output1 = vsinput+".int_table";
+    string output2 = vsinput+".overlaps";
+
+    VDWcontainer rad(vdwfile);
+    rad.GenPoints();
+    auto pdb = PDBparser(input,types,keepunknown);
+    if (chain_sep.size() == 1) ChainSelector(chain_sep,pdb);
+    if(reorder){
+      pdb = ReorderPDB(pdb);
+      cout << "#Reordering PDB\n";
+    }
+
+    rad.SetRadius(pdb, probe);
+
+    Generic_Solver(pdb,rad.Points,chain_sep,2,cl_mode);
+
+    GeneratePairInteractionData(pdb);
+
+    //PrintDNA_ProtResultsTable(pdb, output1);
+   
+    if(mtrx)Print_TripletInsideResidue(pdb,vsinput,0);
+    else PrintDNA_ProtResults(pdb, output2);
+    return 0;
+  }
+
   //dSASA inside atoms mode
   if(mode == 3){
     if (chain_sep.size() > 1){

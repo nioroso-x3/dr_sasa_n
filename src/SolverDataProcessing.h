@@ -84,6 +84,10 @@ Print_MatrixInsideAtom(vector<atom_struct>& pdb,
                        string,
                        int);
 
+void
+Print_TripletInsideResidue(vector<atom_struct>& pdb,
+                       string,
+                       int);
 /*void
 PrintSASAone_type_(vector<atom_struct>&,         //pdb struct
            int,                           //type
