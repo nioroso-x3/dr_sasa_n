@@ -874,6 +874,115 @@ Print_MatrixInsideAtom(vector<atom_struct>& pdb,
   mtrxfile_res.close();
 }
 
+
+void
+Print_TripletInsideResidue(vector<atom_struct>& pdb,
+                       string               output,
+                       int                  mode){
+  CalculateDNA_ProtInteractions(pdb,mode);
+  set<string> object_types;
+  for (auto& atom : pdb){
+    object_types.insert(atom.CHAIN);
+  }
+  vector<string> objs(object_types.begin(),object_types.end());
+  
+  
+  //variables for atom matrix
+  vector<string> ColL;
+  vector<string> LineL;
+  vector<string> ColL_type;
+  vector<string> LineL_type;
+  map<string,uint32> ColM;
+  map<string,uint32> LineM;
+  vector<float> mtrx; 
+  //variables for residue matrix
+  vector<string> ColLres;
+  vector<string> LineLres;
+  map<string,uint32> ColMres;
+  map<string,uint32> LineMres;
+  vector<float> mtrx_res; 
+
+  for (auto& atom : pdb){
+    string aID = atom.sID();
+    string rID = atom.rsID();
+    stringstream atomtype;
+    atomtype << aID << "/" << atom.MOL_TYPE << "/" << atom.ATOM_TYPE; 
+    ColL_type.push_back(atomtype.str());
+    ColL.push_back(aID);
+    ColM[aID] = ColL.size()-1;
+    ColLres.push_back(rID);
+    //cout << " COL " << aID << " " << ColL.size()-1 << std::endl;
+    LineL_type.push_back(atomtype.str());
+    LineL.push_back(aID);
+    LineM[aID] = LineL.size()-1;
+    LineLres.push_back(rID);
+    //cout << " LIN " << aID << " " << LineL.size()-1 << std::endl;
+  }
+  ColLres.erase( unique( ColLres.begin(), ColLres.end() ), ColLres.end() );
+  LineLres.erase( unique( LineLres.begin(), LineLres.end() ), LineLres.end() );
+  for (uint32 k = 0; k < ColLres.size();++k) ColMres[ColLres[k]] = k;
+  for (uint32 k = 0; k < LineLres.size();++k) LineMres[LineLres[k]] = k;
+  
+  mtrx.resize(ColL.size()*LineL.size(),NAN);
+  mtrx_res.resize(ColLres.size()*LineLres.size(),NAN);
+  uint32 lm = ColL.size();
+  uint32 lm_res = ColLres.size();
+//pragma omp parallel for schedule(dynamic)
+  for(uint32 i = 0; i < pdb.size(); ++i){
+    auto& atom = pdb[i];
+    string aID = atom.sID();
+    string rID = atom.rsID();
+   //cout << "ATOM: " << aID << " " << atom.STRUCT_TYPE << "\n";
+   for(uint32 pos : atom.INTERACTION_SASA_P){
+      //cout <<"    OBJ_A: " << pdb[pos].sID() << "\n";
+        uint32 col = ColM[aID];
+        uint32 line = LineM[pdb[pos].sID()];
+        uint32 col_res = ColMres[rID];
+        uint32 line_res = LineMres[pdb[pos].rsID()];
+        uint64 idxR = col_res + line_res * lm_res;
+        uint64 idxA = col + line * lm;
+        if(std::isnan(mtrx_res[idxR])) mtrx_res[idxR] = 0.0;
+        if(std::isnan(mtrx[idxA])) mtrx[idxA] = 0.0;
+
+      for (uint32 r = 0; r < atom.ov_table.size(); ++r){
+        auto& ov = atom.ov_table[r];
+        if(ov.end() != find(ov.begin(),ov.end(),pos)){
+          //pragma omp critical(printatommatrix)
+          {
+          mtrx_res[idxR] += atom.ov_norm_area[r];
+          mtrx[idxA] += atom.ov_norm_area[r];
+          }
+        }
+      }
+    }
+  }
+ 
+  //residuefiles
+  stringstream fname_res;
+  fname_res << output << ".triplet.";
+  for (auto& str : objs) fname_res << str; 
+  fname_res << ".by_res.csv";
+  ofstream mtrxfile_res(fname_res.str());
+  mtrxfile_res << "LineLres"<< endl;
+  for (auto s : LineLres) {
+    mtrxfile_res << s << ",";
+  }mtrxfile_res << endl;
+  mtrxfile_res << "ColLres"<< endl;
+  for (auto s : ColLres) {
+    mtrxfile_res << s << ",";
+  }mtrxfile_res << endl;
+  mtrxfile_res << "LineL,ColL,Value"<< endl;
+  for (uint32 l = 0; l < LineLres.size(); ++l){
+    for (uint32 c = 0; c < ColLres.size(); ++c){
+      auto value=mtrx_res[c + l * ColLres.size()];
+      if (value==value) //detect is nan?
+      {mtrxfile_res<<l<<","<<c<<","<<value<<endl;} //write triplet
+    }
+  }
+  mtrxfile_res.close();
+}
+
+
 void
 PrintDNA_ProtResults(vector<atom_struct>& pdb,
                      string               output){
